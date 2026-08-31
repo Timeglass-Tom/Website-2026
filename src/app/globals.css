@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+/**
+ * Dark palette for /earn. The base is the same deep teal-green the main site
+ * uses for ink (#0B1A1C), inverted into a background, with the main site's
+ * cream carried through as the primary text colour so the two sites read as
+ * one brand.
+ */
+@theme {
+  --color-ground: #0b1a1c;
+  --color-ground-deep: #071214;
+  --color-surface: #0f2427;
+  --color-surface-raised: #143034;
+  --color-hairline: #1d3a3e;
+  --color-hairline-soft: #16302f;
+
+  --color-cream: #faf6ef;
+  --color-body: #a6bbbb;
+  --color-muted: #7a9092;
+  --color-faint: #57696b;
+
+  --color-accent: #6fcb92;
+  --color-accent-deep: #4c9a6a;
+  --color-accent-wash: #12332a;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+}
+
+html {
+  background-color: var(--color-ground);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-ground);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* The site is mobile-first by necessity: most VAs land here on a phone. Keep
+   focus rings visible — several of these flows are filled in on small screens
+   with a keyboard up. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
