@@ -1,13 +1,13 @@
-# timeglass.ai/earn — VA referral program
+# timeglass.ai/earn, VA referral program
 
 A standalone referral site that pays virtual assistants to introduce Timeglass
 to the person who employs them. It doubles as a lead-gen funnel: to be
 attributed for a payout, a VA has to tell us who they're introducing, and that
 lead flows to the CRM where sales can work it directly.
 
-Built as a Next.js app served at the `/earn` **subpath** of `timeglass.ai` — not
-a subdomain — so it shares the apex origin, and therefore cookies and trust,
-with the main marketing site. `basePath: '/earn'` in `next.config.ts` handles
+Built as a Next.js app served at the `/earn` **subpath** of `timeglass.ai`
+rather than on a subdomain, so it shares the apex origin, and therefore cookies
+and trust, with the main marketing site. `basePath: '/earn'` in `next.config.ts` handles
 this; routes are authored as if they were at the root.
 
 ## Running it
@@ -34,12 +34,12 @@ critical path hard-requires a credential:
 | `EARN_CRM_WEBHOOK_URL` | Leads are still stored and attributed; `crm_synced_at` stays null. A CRM outage never costs us a lead. |
 | Wise / PayPal creds | Those rails fall back to the manual provider, which queues the payout for a human rather than failing it. |
 | PostHog key | Analytics no-op. |
-| `EARN_BOOKING_WEBHOOK_SECRET` / `EARN_PAYOUT_RUN_SECRET` | Fail **closed** — the endpoint rejects everything. These two are deliberately not optional. |
+| `EARN_BOOKING_WEBHOOK_SECRET` / `EARN_PAYOUT_RUN_SECRET` | Fail **closed**, the endpoint rejects everything. These two are deliberately not optional. |
 
 ## Database
 
 `supabase/migrations/` holds the schema (`0001`) and the RLS policies (`0002`).
-They have **not** been applied to any project — apply them with the Supabase CLI
+They have **not** been applied to any project, apply them with the Supabase CLI
 or by pasting into the SQL editor:
 
 ```bash
@@ -51,15 +51,15 @@ with product tables without needing PostgREST reconfigured for an extra schema.
 The mapping to the PRD's table names is documented at the top of `0001`.
 
 The RLS shape: a VA reads their own rows, inserts their own leads and evidence,
-and edits their own profile. **Every write that decides money** — lead status,
-earnings, payouts, bookings — is service-role only, so a VA cannot mark their
+and edits their own profile. **Every write that decides money**, lead status,
+earnings, payouts, bookings, is service-role only, so a VA cannot mark their
 own introduction attended or clear their own hold.
 
 Auth uses Supabase Auth (email + password, Google, Facebook). The PRD suggested
 Clerk with Supabase as the alternative; Supabase won because auth and the
 database then share one set of credentials and RLS keys directly off
 `auth.uid()`, which is what enforces the rule above. Facebook OAuth is not
-optional — in the Philippines, Vietnam and Indonesia it is often the account a
+optional, in the Philippines, Vietnam and Indonesia it is often the account a
 VA actually remembers the password to.
 
 ## How the money works
@@ -86,19 +86,61 @@ money.
 Payout rails sit behind the `PayoutProvider` interface in `lib/payouts/`, so
 adding Payoneer or USDC is a new file rather than a change to the ledger.
 
-## Where the copy lives
+## Design and copy
 
-- `src/content/landing.tsx` — every word of the landing page, plus the FAQ as a
-  typed `{ q, a: ReactNode }[]`.
-- `src/content/pitch.ts` — the pitch email template and the "how to pitch your
+Everything visual comes from the Timeglass 2026 Digital Brand Guidelines rather
+than from invention. `src/app/globals.css` carries the palette with the guide's
+own swatch names, so a designer reading the CSS and a designer reading the PDF
+are looking at the same thing:
+
+| Role | Swatch | Hex |
+|---|---|---|
+| Page ground, dark blocks | Time Dark | `#0C1B1D` |
+| Page ground, light blocks | Still White | `#FAF8F4` |
+| Accent, every primary action | Sand Gold | `#DA9944` |
+| Cards on light, borders on dark | Warm Sand, Deep Focus | `#F0EFEB`, `#243E41` |
+| Body copy on light, on dark | Still Current, Pale Flow | `#485759`, `#C1D0D2` |
+
+Dark and light blocks alternate the way the main marketing site does, with Time
+Dark carrying the pitch and Still White carrying the explanation.
+
+**Typography.** The guide pairs Aeonik Pro for headlines with Inter for
+supporting copy and UI, and sets every headline at -4% letter spacing. Inter is
+loaded exactly as specified. Aeonik Pro is licensed and cannot ship from this
+repo, so the display stack lists it first and falls back to Outfit, the closest
+geometric grotesque on Google Fonts. Self-host the licensed face and the
+fallback stops being used with no other change. The -4% tracking is bound to the
+`.font-display` class so no heading can be set without it.
+
+**The mark** is redrawn as inline SVG in `src/components/Logo.tsx`: two curved
+halves whose negative space forms the hourglass, wide at top and bottom and
+pinched at the waist. It takes `currentColor`, since the guidelines forbid
+recolouring the mark on its own.
+
+### Where the copy lives
+
+- `src/content/landing.tsx` for every word of the landing page, plus the FAQ as
+  a typed `{ q, a: ReactNode }[]`.
+- `src/content/pitch.ts` for the pitch email template and the "how to pitch your
   boss" collateral.
-- `src/config/program.ts` — payout amounts, thresholds, and every open question
-  from PRD §13 in one place.
+- `src/config/program.ts` for payout amounts, thresholds, and every open
+  question from PRD §13.
 
-Two hard brand lines apply to all of it: never say "screenshots" (Timeglass
-reads the work as it happens), and never frame Timeglass as monitoring,
-surveillance or bossware. A third applies only here: name the transaction
-plainly. "Do this, get $35" — not "commissions", not "rewards".
+House style, enforced by hand across every user-facing string:
+
+- No em dashes anywhere. Commas and full stops do the work instead.
+- Complete sentences joined with conjunctions, so there are no standalone
+  fragments, no repeated sentence openings, and no "X, not Y" constructions.
+- Headings run to ten words at most and say something, rather than labelling the
+  section they sit on.
+- A banned-word list is avoided throughout, including "unlock", "leverage",
+  "insights", "already", "matters", "ensure", "impact", "transform", and
+  "discover".
+
+Two brand rules carry over from the main site and are hard lines: never say
+"screenshots", because Timeglass reads the work as it happens, and never frame
+Timeglass as monitoring, surveillance, or bossware. A third applies only here,
+which is that the transaction gets named plainly. "Do this, get $35."
 
 ## Still open
 
@@ -107,7 +149,7 @@ would render it degrades rather than showing a placeholder to a VA:
 
 - **Conversion bounty amount** and the definition of "converted". Conversions are
   recorded on the lead, so these are payable retroactively once the number lands.
-- **VA-to-VA referral amount.** Same — the relationship is recorded at signup.
+- **VA-to-VA referral amount.** Same, the relationship is recorded at signup.
 - **JM and Justin's contact details** for the "Is this legit?" FAQ. The answer
   currently stands on its own and omits the reference list.
 - **CRM webhook endpoint.**
@@ -117,4 +159,4 @@ would render it degrades rather than showing a placeholder to a VA:
 Not built, in the PRD's own ship order: evidence upload has a table, RLS policy
 and storage path column but no UI (§8.7, priority 9); the Wise and PayPal
 providers have real shapes but stubbed HTTP calls (priority 10). The leaderboard
-is deliberately absent (§8.8) — empty leaderboards kill credibility.
+is deliberately absent (§8.8), empty leaderboards kill credibility.

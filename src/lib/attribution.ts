@@ -8,7 +8,7 @@ import { normalizeCode } from '@/lib/referral';
  * The rules, from the PRD:
  *   - A booking belongs to a VA if it came through a link carrying their
  *     referral code, OR the booked contact's email matches a lead that VA
- *     submitted — whichever came first.
+ *     submitted, whichever came first.
  *   - Ties between two VAs claiming the same company break on evidence first,
  *     then on who submitted first.
  *
@@ -77,7 +77,7 @@ export async function attributeBooking(
 
   if (refUserId) {
     // The code identifies the VA even with no matching lead on file. They still
-    // get paid — but we try to hang the booking off one of their leads at the
+    // get paid, but we try to hang the booking off one of their leads at the
     // same company so the dashboard row moves rather than stranding the
     // booking somewhere the VA cannot see it.
     const leadId = domain ? await leadAtDomain(db, refUserId, domain) : null;
@@ -88,7 +88,7 @@ export async function attributeBooking(
     };
   }
 
-  // --- Claim 3: nobody's code, nobody's contact — but someone may have
+  // --- Claim 3: no matching code and no matching contact, though someone may
   // submitted a lead at this company. Weakest signal, so it only applies when
   // exactly one VA has a claim on the domain; anything ambiguous goes to review
   // rather than guessing with someone's money.
@@ -121,7 +121,7 @@ export async function attributeBooking(
 /**
  * Tie-break among VAs claiming the same contact. Evidence wins, then the
  * earliest submission. A ref code on the booking only breaks a tie between
- * leads submitted on the same day — it never beats a materially earlier claim.
+ * leads submitted on the same day, and it never beats an earlier claim.
  */
 function pickEarliest(leads: LeadRow[], refUserId: string | null): LeadRow {
   const sorted = [...leads].sort(

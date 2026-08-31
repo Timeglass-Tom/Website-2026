@@ -33,7 +33,7 @@ export function SignInForm({ configured }: { configured: boolean }) {
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('Something went wrong. Try again in a moment.');
+      setError('Something went wrong. Please try again in a moment.');
     } finally {
       setPending(false);
     }
@@ -41,8 +41,8 @@ export function SignInForm({ configured }: { configured: boolean }) {
 
   if (!configured) {
     return (
-      <div className="rounded-[12px] border border-hairline bg-surface p-5 text-[15px] leading-[1.6] text-body">
-        Sign-in isn’t open in this environment yet.
+      <div className="rounded-[14px] border border-deep-focus bg-deep-time p-5 text-[15px] leading-[1.62] text-pale-flow">
+        Sign-in is not open in this environment yet.
       </div>
     );
   }
@@ -77,8 +77,8 @@ export function SignInForm({ configured }: { configured: boolean }) {
 
         <FormError>{error}</FormError>
 
-        <Button type="submit" disabled={pending} className="w-full">
-          {pending ? 'Signing in…' : 'Sign in'}
+        <Button type="submit" arrow disabled={pending} className="w-full">
+          {pending ? 'Signing in' : 'Sign in'}
         </Button>
       </form>
     </div>

@@ -35,7 +35,7 @@ export async function createClient() {
 }
 
 /**
- * Service-role client. Bypasses RLS — only for server-side handlers that decide
+ * Service-role client. Bypasses RLS, only for server-side handlers that decide
  * status or money (booking webhook, lead insert with anti-abuse checks, payout
  * runs). Never import this from anything that ships to the browser.
  */

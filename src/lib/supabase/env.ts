@@ -1,6 +1,6 @@
 /**
- * Supabase is optional at build time so the landing page — priority 1 in the
- * PRD's ship order — can go live before auth and the database exist. Anything
+ * Supabase is optional at build time so the landing page, priority 1 in the
+ * PRD's ship order, can go live before auth and the database exist. Anything
  * that needs a client asks `isSupabaseConfigured()` first and renders a plain
  * "not connected yet" state instead of throwing.
  */

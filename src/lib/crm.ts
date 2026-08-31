@@ -5,7 +5,7 @@ import 'server-only';
  *
  * OPEN QUESTION (PRD §13): the CRM endpoint is still to be provided. Until
  * `EARN_CRM_WEBHOOK_URL` is set this no-ops and reports it, so a missing
- * endpoint can never be the reason a VA's lead submission fails — the row is
+ * endpoint can never be the reason a VA's lead submission fails, because the row is
  * already committed by the time this runs, and `crm_synced_at` records whether
  * it made it across.
  */

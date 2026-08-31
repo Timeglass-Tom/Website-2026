@@ -1,51 +1,66 @@
 @import 'tailwindcss';
 
 /**
- * Dark palette for /earn. The base is the same deep teal-green the main site
- * uses for ink (#0B1A1C), inverted into a background, with the main site's
- * cream carried through as the primary text colour so the two sites read as
- * one brand.
+ * Tokens taken from the Timeglass 2026 Digital Brand Guidelines. Hex values and
+ * swatch names below are the ones in the guide, so a designer reading this file
+ * and a designer reading the PDF are looking at the same thing.
  */
 @theme {
-  --color-ground: #0b1a1c;
-  --color-ground-deep: #071214;
-  --color-surface: #0f2427;
-  --color-surface-raised: #143034;
-  --color-hairline: #1d3a3e;
-  --color-hairline-soft: #16302f;
+  /* Primary palette */
+  --color-time-dark: #0c1b1d;
+  --color-deep-focus: #243e41;
+  --color-still-white: #faf8f4;
+  --color-sand-gold: #da9944;
 
-  --color-cream: #faf6ef;
-  --color-body: #a6bbbb;
-  --color-muted: #7a9092;
-  --color-faint: #57696b;
+  /* Secondary palette */
+  --color-deep-time: #293738;
+  --color-still-current: #485759;
+  --color-soft-signal: #657274;
+  --color-glass-teal: #44585b;
+  --color-warm-sand: #f0efeb;
+  --color-quiet-glass: #e7eded;
+  --color-mist-grey: #dce2e3;
+  --color-pale-flow: #c1d0d2;
 
-  --color-accent: #6fcb92;
-  --color-accent-deep: #4c9a6a;
-  --color-accent-wash: #12332a;
+  /* Derived, for states the guide does not enumerate. Kept to a minimum. */
+  --color-sand-gold-lift: #e5a855;
+  --color-time-dark-deep: #081416;
+  --color-dark-muted: #8fa1a3;
 
-  --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
+  /* Headlines are Aeonik Pro. It is licensed, so it leads the stack and the
+     site falls back to Outfit, the closest geometric grotesque available on
+     Google Fonts. Drop the licensed webfont in and the fallback stops being
+     used with no other change. */
+  --font-display: var(--font-outfit), 'Aeonik Pro', 'Aeonik', ui-sans-serif,
+    system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
 }
 
 html {
-  background-color: var(--color-ground);
+  background-color: var(--color-time-dark);
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: var(--color-ground);
-  color: var(--color-cream);
+  background-color: var(--color-time-dark);
+  color: var(--color-still-white);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* The site is mobile-first by necessity: most VAs land here on a phone. Keep
-   focus rings visible — several of these flows are filled in on small screens
-   with a keyboard up. */
+/* The guide sets every headline at -4% letter spacing. Binding it to the
+   display face here means no heading can be written without it. */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+/* Most VAs reach this site on a phone and fill these forms in with a keyboard
+   up, so focus has to stay obvious. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-sand-gold);
   outline-offset: 2px;
   border-radius: 4px;
 }

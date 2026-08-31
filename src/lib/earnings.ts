@@ -30,8 +30,8 @@ function clearsAt(from = new Date()): string {
  *
  * The `(lead_id, kind)` unique constraint is what makes this safe to call more
  * than once: a lead whose status flaps attended -> booked -> attended must pay
- * exactly one attendance bounty, and the database — not this function's
- * carefulness — is what guarantees it.
+ * exactly one attendance bounty, and the database constraint is what
+ * guarantees that.
  */
 async function accrue(
   db: SupabaseClient,
@@ -95,8 +95,8 @@ export async function accrueAttendance(
  * Called when a referred company becomes a paying customer.
  *
  * OPEN QUESTION (PRD §13): the conversion bounty amount is not set. Until it
- * is, this records nothing rather than accruing a zero — a $0 line item in a
- * VA's dashboard reads as a broken promise, and a wrong number is worse. The
+ * is, this records nothing rather than accruing a zero, because a $0 line item
+ * in a VA's dashboard reads as a broken promise, and a wrong number is worse. The
  * conversion itself is still recorded on the lead, so these are payable
  * retroactively once the amount lands.
  */
@@ -116,7 +116,7 @@ export async function accrueConversion(
 
 /**
  * Called when a VA who signed up on someone's share link earns their own first
- * payout. Direct referrals only — there is no walk up a tree here, by design.
+ * payout. Direct referrals only, and there is deliberately no walk up a tree.
  *
  * Same open question as above: nothing is accrued until the amount is set.
  */
@@ -178,7 +178,7 @@ export function summarize(
       .reduce((total, e) => total + Number(e.amount_usd), 0);
 
   return {
-    // "Total earned" excludes voided rows — a reversed bounty should not keep
+    // "Total earned" excludes voided rows, a reversed bounty should not keep
     // inflating a number the VA reads as money owed to them.
     totalUsd: sum((s) => s !== 'void'),
     pendingUsd: sum((s) => s === 'pending'),

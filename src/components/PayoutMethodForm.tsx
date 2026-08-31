@@ -8,7 +8,7 @@ import { PAYOUT_METHODS } from '@/config/program';
 import { createClient } from '@/lib/supabase/client';
 
 /**
- * Writes straight to `earn_users` under the VA's own session — the update
+ * Writes straight to `earn_users` under the VA's own session. The update
  * policy scopes it to their own row, so this needs no API route of its own.
  */
 export function PayoutMethodForm({ current }: { current: string | null }) {
@@ -30,7 +30,7 @@ export function PayoutMethodForm({ current }: { current: string | null }) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        setError('Your session expired. Sign in again.');
+        setError('Your session expired, so please sign in again.');
         return;
       }
 
@@ -40,7 +40,7 @@ export function PayoutMethodForm({ current }: { current: string | null }) {
         .eq('id', user.id);
 
       if (updateError) {
-        setError('Could not save that. Try again.');
+        setError('We could not save that. Please try again.');
         return;
       }
 
@@ -68,8 +68,8 @@ export function PayoutMethodForm({ current }: { current: string | null }) {
 
       <FormError>{error}</FormError>
 
-      <Button type="submit" variant="secondary" disabled={pending}>
-        {saved ? 'Saved' : pending ? 'Saving…' : 'Save'}
+      <Button type="submit" variant="onDark" disabled={pending}>
+        {saved ? 'Saved' : pending ? 'Saving' : 'Save'}
       </Button>
     </form>
   );

@@ -10,7 +10,7 @@ import { createAdminClient } from '@/lib/supabase/server';
  * The weekly payout run. Meant to be hit by a scheduler every Friday; safe to
  * run more often, and safe to re-run after a failure.
  *
- * Order matters and is the whole design:
+ * The order below is the whole design:
  *   1. Clear earnings whose 14-day fraud-review hold has elapsed.
  *   2. Group cleared earnings per VA and skip anyone under the minimum.
  *   3. Create the payout row FIRST, then attach the earnings to it, then send.

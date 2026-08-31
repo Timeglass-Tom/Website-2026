@@ -46,8 +46,8 @@ export type DashboardData = {
 
 /**
  * Everything the dashboard renders, in one round trip's worth of queries.
- * Reads run under the VA's own session, so RLS — not this function — is what
- * guarantees a VA never sees another VA's rows.
+ * Reads run under the VA's own session, so RLS is what guarantees a VA never
+ * sees another VA's rows.
  */
 export async function loadDashboard(): Promise<DashboardData> {
   const supabase = await createClient();
@@ -103,7 +103,7 @@ export function formatUsd(amount: number): string {
 }
 
 export function formatDate(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return ', ';
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',

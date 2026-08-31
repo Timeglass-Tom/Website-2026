@@ -8,8 +8,6 @@ import { MIN_PAYOUT_USD, PAYOUT_DAY, PAYOUT_HOLD_DAYS, usd } from '@/config/prog
 
 export const metadata: Metadata = { title: 'How to pitch your boss' };
 
-// Earnings and lead status change under the VA's feet; never serve a build-time
-// snapshot of them.
 export const dynamic = 'force-dynamic';
 
 export default async function ResourcesPage() {
@@ -18,30 +16,37 @@ export default async function ResourcesPage() {
   return (
     <div className="max-w-[46rem] space-y-12">
       <div>
-        <Link href="/dashboard" className="text-[13.5px] text-muted hover:text-cream">
-          ← Back
+        <Link
+          href="/dashboard"
+          className="text-[13.5px] text-dark-muted hover:text-still-white"
+        >
+          Back to dashboard
         </Link>
-        <h1 className="mt-5 text-[28px] font-medium leading-[1.12] tracking-[-0.02em] text-cream">
+        <h1 className="font-display mt-5 text-[32px] font-normal leading-[1.1] text-still-white">
           How to pitch your boss
         </h1>
-        <p className="mt-3 text-[16px] leading-[1.6] text-body">
-          Six things that actually land with the people who run agencies and VA
-          teams, roughly in the order to lead with them. You don’t need all six —
-          the first one wins most conversations on its own.
+        <p className="mt-4 text-[16px] leading-[1.62] text-pale-flow">
+          Here are six things that land with the people who run agencies and VA
+          teams, roughly in the order you should lead with them. You will not need
+          all six, because the first one wins most conversations on its own.
         </p>
       </div>
 
-      <ol className="space-y-8">
+      <ol className="space-y-9">
         {collateral.map((point, i) => (
           <li key={point.title} className="flex gap-4">
-            <span className="mt-[3px] flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-hairline bg-accent-wash text-[13px] font-medium tabular-nums text-accent">
+            <span className="mt-[3px] flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sand-gold/15 text-[13px] font-medium tabular-nums text-sand-gold">
               {i + 1}
             </span>
             <div>
-              <h2 className="text-[17px] font-medium text-cream">{point.title}</h2>
-              <p className="mt-2 text-[15.5px] leading-[1.65] text-body">{point.body}</p>
+              <h2 className="font-display text-[18px] font-medium text-still-white">
+                {point.title}
+              </h2>
+              <p className="mt-2.5 text-[15.5px] leading-[1.68] text-pale-flow">
+                {point.body}
+              </p>
               {point.say && (
-                <blockquote className="mt-3 border-l-2 border-accent pl-4 text-[15.5px] leading-[1.6] text-cream italic">
+                <blockquote className="mt-4 border-l-2 border-sand-gold pl-4 text-[15.5px] leading-[1.62] text-still-white italic">
                   “{point.say}”
                 </blockquote>
               )}
@@ -50,14 +55,19 @@ export default async function ResourcesPage() {
         ))}
       </ol>
 
-      <section className="grid gap-6 border-t border-hairline-soft pt-10 sm:grid-cols-2">
+      <section className="grid gap-8 border-t border-deep-focus/70 pt-10 sm:grid-cols-2">
         <div>
-          <h2 className="text-[17px] font-medium text-cream">Do</h2>
-          <ul className="mt-3 space-y-2.5">
+          <h2 className="font-display text-[18px] font-medium text-still-white">
+            Worth doing
+          </h2>
+          <ul className="mt-4 space-y-3">
             {dosAndDonts.dos.map((item) => (
-              <li key={item} className="flex gap-2.5 text-[15px] leading-[1.6] text-body">
-                <span aria-hidden="true" className="mt-[2px] text-accent">
-                  ✓
+              <li
+                key={item}
+                className="flex gap-2.5 text-[15px] leading-[1.62] text-pale-flow"
+              >
+                <span aria-hidden="true" className="mt-[2px] text-sand-gold">
+                  +
                 </span>
                 {item}
               </li>
@@ -65,12 +75,17 @@ export default async function ResourcesPage() {
           </ul>
         </div>
         <div>
-          <h2 className="text-[17px] font-medium text-cream">Don’t</h2>
-          <ul className="mt-3 space-y-2.5">
+          <h2 className="font-display text-[18px] font-medium text-still-white">
+            Worth avoiding
+          </h2>
+          <ul className="mt-4 space-y-3">
             {dosAndDonts.donts.map((item) => (
-              <li key={item} className="flex gap-2.5 text-[15px] leading-[1.6] text-body">
-                <span aria-hidden="true" className="mt-[2px] text-faint">
-                  ✕
+              <li
+                key={item}
+                className="flex gap-2.5 text-[15px] leading-[1.62] text-pale-flow"
+              >
+                <span aria-hidden="true" className="mt-[2px] text-soft-signal">
+                  &minus;
                 </span>
                 {item}
               </li>
@@ -80,15 +95,17 @@ export default async function ResourcesPage() {
       </section>
 
       {profile && (
-        <section className="border-t border-hairline-soft pt-10">
-          <h2 className="text-[17px] font-medium text-cream">How you get paid</h2>
-          <p className="mt-2 text-[15px] leading-[1.6] text-body">
-            Cleared earnings go out every {PAYOUT_DAY} once you’ve reached{' '}
-            {usd(MIN_PAYOUT_USD)}. Earnings are held {PAYOUT_HOLD_DAYS} days after a
-            call is marked attended, which is our fraud-review window — nothing to do
-            on your side.
+        <section className="border-t border-deep-focus/70 pt-10">
+          <h2 className="font-display text-[18px] font-medium text-still-white">
+            How you get paid
+          </h2>
+          <p className="mt-3 text-[15px] leading-[1.62] text-pale-flow">
+            Cleared earnings go out every {PAYOUT_DAY} once you have reached{' '}
+            {usd(MIN_PAYOUT_USD)}. Earnings are held for {PAYOUT_HOLD_DAYS} days
+            after a call is marked attended so we can run a fraud review, and there
+            is nothing for you to do during that time.
           </p>
-          <div className="mt-5 max-w-[22rem]">
+          <div className="mt-6 max-w-[22rem]">
             <PayoutMethodForm current={profile.payout_method} />
           </div>
         </section>

@@ -12,19 +12,20 @@ export default async function NewLeadPage() {
 
   return (
     <div className="max-w-[34rem]">
-      <Link href="/dashboard" className="text-[13.5px] text-muted hover:text-cream">
-        ← Back
+      <Link href="/dashboard" className="text-[13.5px] text-dark-muted hover:text-still-white">
+        Back to dashboard
       </Link>
 
-      <h1 className="mt-5 text-[26px] font-medium leading-[1.15] tracking-[-0.02em] text-cream">
+      <h1 className="font-display mt-5 text-[30px] font-normal leading-[1.12] text-still-white">
         Who are you introducing?
       </h1>
       {/* The framing the PRD asks for, stated plainly and up front. This is the
           one thing standing between a VA and getting paid, and pretending
           otherwise would only cost us completions. */}
-      <p className="mt-3 text-[15.5px] leading-[1.6] text-body">
-        We need this so we can attribute the meeting to you and pay you. If this
-        person — or anyone from their company — takes a call with us, it’s yours.
+      <p className="mt-3 text-[15.5px] leading-[1.62] text-pale-flow">
+        We need this so we can credit the meeting to you and pay you. If this
+        person or anyone from their company takes a call with us, the credit goes
+        to you.
       </p>
 
       <div className="mt-8">

@@ -4,7 +4,7 @@
  * Everything the PRD lists as an open question lives here, so the answers can
  * land in one file without touching copy or logic. Anything still unanswered is
  * typed as `null` and every surface that renders it is written to degrade
- * gracefully — an unset bounty is never shown as "$0" or "$TBD" to a VA.
+ * gracefully, and an unset bounty is never shown as "$0" or "$TBD" to a VA.
  */
 
 /** Paid when an introduced decision-maker attends a call. The headline number. */
@@ -25,8 +25,8 @@ export const PHONE_BONUS_USD = 10;
 export const CONVERSION_BOUNTY_USD: number | null = null;
 
 /**
- * OPEN QUESTION (PRD §13): VA-to-VA referral payout. Direct referrals only —
- * there is deliberately no multi-level tree.
+ * OPEN QUESTION (PRD §13): VA-to-VA referral payout. Direct referrals only,
+ * and there is deliberately no multi-level tree.
  */
 export const VA_REFERRAL_BOUNTY_USD: number | null = null;
 
@@ -41,8 +41,8 @@ export const PAYOUT_DAY = 'Friday';
 
 /**
  * More than this many leads from one VA inside 24h flags the account for manual
- * review. Not a hard block — a genuinely productive VA should not be stopped,
- * only looked at.
+ * review. This is not a hard block, because a genuinely productive VA should
+ * be looked at rather than stopped.
  */
 export const LEAD_VELOCITY_REVIEW_THRESHOLD = 5;
 

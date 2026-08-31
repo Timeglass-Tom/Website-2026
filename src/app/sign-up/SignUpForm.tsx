@@ -70,7 +70,7 @@ export function SignUpForm({
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('Something went wrong. Try again in a moment.');
+      setError('Something went wrong. Please try again in a moment.');
     } finally {
       setPending(false);
     }
@@ -78,18 +78,18 @@ export function SignUpForm({
 
   if (!configured) {
     return (
-      <div className="rounded-[12px] border border-hairline bg-surface p-5 text-[15px] leading-[1.6] text-body">
-        Signups aren’t open in this environment yet. The landing page is live;
-        auth switches on as soon as Supabase credentials are set.
+      <div className="rounded-[14px] border border-deep-focus bg-deep-time p-5 text-[15px] leading-[1.62] text-pale-flow">
+        Signups are not open in this environment yet. The landing page is live,
+        and sign-in switches on as soon as Supabase credentials are set.
       </div>
     );
   }
 
   if (needsConfirmation) {
     return (
-      <div className="rounded-[12px] border border-hairline bg-surface p-5 text-[15px] leading-[1.6] text-body">
-        Check your email — we sent a link to confirm your address. Open it and
-        you’ll land straight in your dashboard with your referral code.
+      <div className="rounded-[14px] border border-deep-focus bg-deep-time p-5 text-[15px] leading-[1.62] text-pale-flow">
+        Check your email, because we sent a link to confirm your address. Open it
+        and you will land in your dashboard with your referral code ready.
       </div>
     );
   }
@@ -152,7 +152,7 @@ export function SignUpForm({
         <div>
           <Label
             htmlFor="payout_method"
-            hint="You can change this later — it won’t hold up your signup."
+            hint="You can change this later, and it will not hold up your signup."
           >
             How you’d like to get paid
           </Label>
@@ -166,12 +166,12 @@ export function SignUpForm({
           </Select>
         </div>
 
-        <label className="flex items-start gap-3 text-[14px] leading-[1.55] text-body">
+        <label className="flex items-start gap-3 text-[14px] leading-[1.55] text-pale-flow">
           <input
             type="checkbox"
             name="terms"
             required
-            className="mt-[3px] h-4 w-4 shrink-0 accent-[#6fcb92]"
+            className="mt-[3px] h-4 w-4 shrink-0 accent-[#da9944]"
           />
           <span>
             I agree to the{' '}
@@ -179,7 +179,7 @@ export function SignUpForm({
               href={`${TIMEGLASS_URL}/terms`}
               target="_blank"
               rel="noreferrer"
-              className="text-accent underline underline-offset-[3px]"
+              className="text-sand-gold underline underline-offset-[3px]"
             >
               terms
             </a>{' '}
@@ -188,7 +188,7 @@ export function SignUpForm({
               href={`${TIMEGLASS_URL}/privacy`}
               target="_blank"
               rel="noreferrer"
-              className="text-accent underline underline-offset-[3px]"
+              className="text-sand-gold underline underline-offset-[3px]"
             >
               privacy policy
             </a>
@@ -198,8 +198,8 @@ export function SignUpForm({
 
         <FormError>{error}</FormError>
 
-        <Button type="submit" disabled={pending} className="w-full">
-          {pending ? 'Creating your account…' : 'Create account'}
+        <Button type="submit" arrow disabled={pending} className="w-full">
+          {pending ? 'Creating your account' : 'Create account'}
         </Button>
       </form>
     </div>

@@ -1,22 +1,22 @@
 /**
- * The lead state machine, rendered. Wording is VA-facing: the database says
- * `meeting_booked`, the VA reads "Call booked", and the money-bearing states
- * (attended, converted, paid) are the only ones that get the accent colour.
+ * The lead state machine, rendered. The wording is VA-facing, so the database
+ * says `meeting_booked` and the VA reads "Call booked". Only the states that
+ * carry money take Sand Gold.
  */
 const LABELS: Record<string, { label: string; className: string }> = {
-  submitted: { label: 'Submitted', className: 'bg-surface-raised text-body' },
-  contacted: { label: 'We’ve reached out', className: 'bg-surface-raised text-body' },
-  meeting_booked: { label: 'Call booked', className: 'bg-[#1c3a4a] text-[#93c5e8]' },
-  attended: { label: 'Attended — you earned', className: 'bg-accent-wash text-accent' },
-  converted: { label: 'Converted', className: 'bg-accent-wash text-accent' },
-  paid: { label: 'Paid', className: 'bg-accent-wash text-accent' },
-  rejected: { label: 'Closed', className: 'bg-surface-raised text-faint' },
+  submitted: { label: 'Submitted', className: 'bg-deep-time text-pale-flow' },
+  contacted: { label: 'We have reached out', className: 'bg-deep-time text-pale-flow' },
+  meeting_booked: { label: 'Call booked', className: 'bg-glass-teal/40 text-quiet-glass' },
+  attended: { label: 'Attended', className: 'bg-sand-gold/15 text-sand-gold' },
+  converted: { label: 'Converted', className: 'bg-sand-gold/15 text-sand-gold' },
+  paid: { label: 'Paid', className: 'bg-sand-gold text-time-dark' },
+  rejected: { label: 'Closed', className: 'bg-deep-time text-soft-signal' },
 };
 
 export function StatusPill({ status }: { status: string }) {
   const entry = LABELS[status] ?? {
     label: status,
-    className: 'bg-surface-raised text-body',
+    className: 'bg-deep-time text-pale-flow',
   };
 
   return (

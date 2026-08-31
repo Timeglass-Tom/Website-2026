@@ -22,15 +22,15 @@ export default async function SignUpPage() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle={`Takes a minute. You’ll get your referral code and share link on the next screen — and ${usd(
+      subtitle={`It takes about a minute. Your referral code and share link show up on the next screen, and the ${usd(
         ATTENDANCE_BOUNTY_USD,
-      )} when the person you introduce attends a call.`}
+      )} lands when the person you introduce attends a call.`}
       footer={
         <>
-          Already signed up?{' '}
+          Have an account?{' '}
           <Link
             href="/sign-in"
-            className="text-accent underline underline-offset-[3px] hover:text-cream"
+            className="text-sand-gold underline underline-offset-[3px] hover:text-still-white"
           >
             Sign in
           </Link>

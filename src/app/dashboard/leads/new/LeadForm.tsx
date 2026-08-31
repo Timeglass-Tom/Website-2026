@@ -46,7 +46,7 @@ export function LeadForm({ defaultCountry }: { defaultCountry: string }) {
         const data = (await response.json().catch(() => null)) as
           | { error?: string }
           | null;
-        setError(data?.error ?? 'Could not save that. Try again.');
+        setError(data?.error ?? 'We could not save that. Please try again.');
         return;
       }
 
@@ -54,7 +54,7 @@ export function LeadForm({ defaultCountry }: { defaultCountry: string }) {
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('Could not reach us. Check your connection and try again.');
+      setError('We could not reach the server. Check your connection and try again.');
     } finally {
       setPending(false);
     }
@@ -63,7 +63,7 @@ export function LeadForm({ defaultCountry }: { defaultCountry: string }) {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <fieldset className="space-y-5">
-        <legend className="text-[12px] font-medium uppercase tracking-[0.13em] text-muted">
+        <legend className="text-[12px] font-medium uppercase tracking-[0.13em] text-soft-signal">
           The company
         </legend>
 
@@ -116,8 +116,8 @@ export function LeadForm({ defaultCountry }: { defaultCountry: string }) {
         </div>
       </fieldset>
 
-      <fieldset className="space-y-5 border-t border-hairline-soft pt-6">
-        <legend className="text-[12px] font-medium uppercase tracking-[0.13em] text-muted">
+      <fieldset className="space-y-5 border-t border-deep-focus/70 pt-6">
+        <legend className="text-[12px] font-medium uppercase tracking-[0.13em] text-soft-signal">
           The person you’re introducing
         </legend>
 
@@ -154,7 +154,7 @@ export function LeadForm({ defaultCountry }: { defaultCountry: string }) {
         <div>
           <Label
             htmlFor="contactEmail"
-            hint="Their work email, not a personal one — it’s how we match the booking back to you."
+            hint="We need their work email, because that is how we match the booking back to you."
           >
             Their work email
           </Label>
@@ -171,9 +171,9 @@ export function LeadForm({ defaultCountry }: { defaultCountry: string }) {
           <Label
             htmlFor="contactPhone"
             optional
-            hint={`Worth ${usd(
+            hint={`This is worth ${usd(
               PHONE_BONUS_USD,
-            )} extra: if we can verify the number and they attend the call, the bonus is yours on top of the payout.`}
+            )} extra, because if we can verify the number and they attend the call, the bonus is yours on top of the payout.`}
           >
             Their phone or WhatsApp
           </Label>
@@ -194,8 +194,8 @@ export function LeadForm({ defaultCountry }: { defaultCountry: string }) {
 
       <FormError>{error}</FormError>
 
-      <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-        {pending ? 'Saving…' : 'Add this company'}
+      <Button type="submit" arrow disabled={pending} className="w-full sm:w-auto">
+        {pending ? 'Saving' : 'Add this company'}
       </Button>
     </form>
   );

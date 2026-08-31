@@ -4,9 +4,9 @@ import { EARN_EVENTS, type EarnEvent } from '@/lib/analytics';
 /**
  * Server-side funnel events.
  *
- * The last three steps the PRD asks for — booking created, attendance, payout —
- * only ever happen in a webhook or a scheduled run, where there is no browser
- * to capture them. This posts straight to PostHog's capture endpoint instead.
+ * The last three steps the PRD asks for, which are booking created,
+ * attendance, and payout, only ever happen in a webhook or a scheduled run,
+ * where there is no browser to capture them. This posts straight to PostHog's capture endpoint instead.
  *
  * Never awaited on a critical path and never allowed to throw: losing an
  * analytics event is acceptable, failing a booking or a payout because of one

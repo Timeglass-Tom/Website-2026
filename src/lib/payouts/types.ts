@@ -2,7 +2,8 @@ import type { PayoutMethod } from '@/config/program';
 
 /**
  * Every payout rail sits behind this interface so adding Payoneer or USDC later
- * is a new file, not a change to the ledger. The ledger records what is owed;
+ * is a new file rather than a change to the ledger. The ledger records what is
+ * owed;
  * a provider only moves money and reports back what happened.
  */
 
@@ -14,7 +15,7 @@ export type PayoutRequest = {
   method: PayoutMethod;
   /** Rail-specific destination: PayPal address, Wise recipient id, wallet, … */
   destination: Record<string, unknown>;
-  /** For the payout screen — what the VA sees in their own currency. */
+  /** For the payout screen, what the VA sees in their own currency. */
   countryCode: string | null;
 };
 

@@ -5,7 +5,7 @@ import type { PayoutProvider, PayoutRequest, PayoutResult } from './types';
  * launch volume paying those by hand is entirely reasonable.
  *
  * It deliberately succeeds with status 'processing' rather than failing. The
- * payout is genuinely in flight — a human is about to send it — and the ledger
+ * payout is genuinely in flight, a human is about to send it, and the ledger
  * should say so, with the terminal 'paid' set when whoever sent it confirms.
  */
 export class ManualPayoutProvider implements PayoutProvider {

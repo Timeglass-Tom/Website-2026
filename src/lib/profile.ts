@@ -16,7 +16,7 @@ export type EarnProfile = {
 
 /**
  * Creates the profile row, the referral code, and the VA-to-VA referral link if
- * one applies — then returns the profile.
+ * one applies, then returns the profile.
  *
  * Called on every dashboard load rather than only at signup: a VA can arrive
  * through the password form, an OAuth callback, or an email confirmation link,
@@ -74,7 +74,7 @@ async function ensureReferralCode(userId: string): Promise<string> {
   if (active) return active.code;
 
   // Codes are short enough that a collision is possible, if rare. Retry rather
-  // than lengthening the code — a VA has to be able to read theirs out loud.
+  // than lengthening the code, a VA has to be able to read theirs out loud.
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const code = generateReferralCode();
     const { error } = await admin
@@ -89,7 +89,7 @@ async function ensureReferralCode(userId: string): Promise<string> {
 
 /**
  * Links a new VA to the VA whose share link they arrived on. The bounty itself
- * is only accrued later, when the referred VA earns their first payout — this
+ * is only accrued later, when the referred VA earns their first payout, this
  * just records the relationship.
  */
 async function ensureVaReferral(userId: string): Promise<void> {

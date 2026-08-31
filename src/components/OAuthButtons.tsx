@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 /**
- * Google and Facebook. Facebook is not optional here — in the Philippines,
- * Vietnam and Indonesia a Facebook login is often the account a VA actually
+ * Google and Facebook. Facebook is not optional here, because in the
+ * Philippines, Vietnam and Indonesia it is often the account a VA actually
  * remembers the password to.
  */
 const PROVIDERS = [
@@ -22,9 +22,7 @@ export function OAuthButtons({ disabled }: { disabled?: boolean }) {
       const supabase = createClient();
       await supabase.auth.signInWithOAuth({
         provider,
-        options: {
-          redirectTo: `${window.location.origin}/earn/auth/callback`,
-        },
+        options: { redirectTo: `${window.location.origin}/earn/auth/callback` },
       });
     } finally {
       setPending(null);
@@ -39,9 +37,9 @@ export function OAuthButtons({ disabled }: { disabled?: boolean }) {
           type="button"
           disabled={disabled || pending !== null}
           onClick={() => void signIn(p.id)}
-          className="w-full rounded-[10px] border border-hairline bg-surface px-4 py-3 text-[15px] font-medium text-cream transition-colors hover:bg-surface-raised disabled:cursor-not-allowed disabled:opacity-55"
+          className="w-full rounded-full border border-still-white/25 px-4 py-3 text-[15px] font-medium text-still-white transition-colors hover:bg-still-white/10 disabled:cursor-not-allowed disabled:opacity-55"
         >
-          {pending === p.id ? 'Opening…' : p.label}
+          {pending === p.id ? 'Opening' : p.label}
         </button>
       ))}
     </div>
@@ -51,9 +49,9 @@ export function OAuthButtons({ disabled }: { disabled?: boolean }) {
 export function OrDivider() {
   return (
     <div className="my-6 flex items-center gap-3">
-      <span className="h-px flex-1 bg-hairline" />
-      <span className="text-[12.5px] uppercase tracking-[0.14em] text-faint">or</span>
-      <span className="h-px flex-1 bg-hairline" />
+      <span className="h-px flex-1 bg-deep-focus" />
+      <span className="text-[12.5px] uppercase tracking-[0.14em] text-soft-signal">or</span>
+      <span className="h-px flex-1 bg-deep-focus" />
     </div>
   );
 }

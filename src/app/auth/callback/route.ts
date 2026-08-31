@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 /**
  * Lands OAuth (Google, Facebook) and email-confirmation redirects. Exchanges
- * the code for a session, then hands off to the dashboard — where
+ * the code for a session, then hands off to the dashboard, where
  * `ensureProfile` creates the profile and referral code, so this route stays
  * the same regardless of which provider sent the VA here.
  */

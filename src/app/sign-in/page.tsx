@@ -10,13 +10,13 @@ export default function SignInPage() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Pick up where you left off."
+      subtitle="Sign in to pick up where you left off."
       footer={
         <>
-          Don’t have an account yet?{' '}
+          Need an account?{' '}
           <Link
             href="/sign-up"
-            className="text-accent underline underline-offset-[3px] hover:text-cream"
+            className="text-sand-gold underline underline-offset-[3px] hover:text-still-white"
           >
             Get started
           </Link>

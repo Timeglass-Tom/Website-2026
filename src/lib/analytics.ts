@@ -2,7 +2,7 @@
  * PostHog funnel instrumentation.
  *
  * The PRD asks for an event on every step of the funnel, so the step names are
- * enumerated here rather than passed as free strings — a typo in an event name
+ * enumerated here rather than passed as free strings, because a typo in one
  * is invisible until someone tries to build the funnel chart weeks later.
  */
 export const EARN_EVENTS = {

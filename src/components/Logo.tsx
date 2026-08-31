@@ -2,32 +2,42 @@ import Link from 'next/link';
 import { TIMEGLASS_URL } from '@/config/program';
 
 /**
- * The Timeglass hourglass mark, lifted from the main site's inline SVG so the
- * two properties draw the same glyph at any size.
+ * The Timeglass mark: two curved halves whose negative space forms an
+ * hourglass, wide at the top and bottom and pinched at the waist. Each half has
+ * a straight outer edge and an ogee inner edge that swells toward the centre.
+ *
+ * The guidelines forbid recolouring the mark on its own, so it takes
+ * currentColor and moves with the text it sits beside.
  */
 export function HourglassMark({ className = '' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 12 14" className={className} aria-hidden="true">
-      <path
-        d="M2 1h8M2 13h8M2.6 1.6c0 3 2.6 3.7 2.6 4.9S2.6 9.4 2.6 12.4M9.4 1.6c0 3-2.6 3.7-2.6 4.9s2.6 2.9 2.6 5.9"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
+    <svg
+      viewBox="0 0 62 60"
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M0 0 L2.6 0 C2.6 13 21 17 21 30 C21 43 2.6 47 2.6 60 L0 60 Z" />
+      <path d="M62 0 L59.4 0 C59.4 13 41 17 41 30 C41 43 59.4 47 59.4 60 L62 60 Z" />
     </svg>
   );
 }
 
-export function Logo({ href = TIMEGLASS_URL }: { href?: string }) {
+export function Logo({
+  href = TIMEGLASS_URL,
+  className = '',
+}: {
+  href?: string;
+  className?: string;
+}) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2.5 text-cream"
+      className={`inline-flex items-center gap-2.5 ${className}`}
       aria-label="Timeglass"
     >
-      <HourglassMark className="h-[17px] w-[14px] text-accent" />
-      <span className="text-[16px] font-medium tracking-[-0.01em]">Timeglass</span>
+      <HourglassMark className="h-[19px] w-[20px]" />
+      <span className="font-display text-[19px] font-normal">Timeglass</span>
     </Link>
   );
 }

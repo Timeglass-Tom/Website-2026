@@ -10,8 +10,8 @@ import { createAdminClient } from '@/lib/supabase/server';
  *
  * Fed by the booking tool on confirmation (with the `?ref=` code the VA's link
  * carried) and by the CRM when a rep marks a meeting attended or an account
- * converted. Attendance is the payout gate, and only this endpoint — never a
- * VA-facing route — can move a lead into it.
+ * converted. Attendance is the payout gate, and only this endpoint, never a
+ * VA-facing route, can move a lead into it.
  */
 
 type BookingEvent = {
@@ -42,8 +42,8 @@ export async function POST(request: NextRequest) {
     attendeeEmail: event.attendeeEmail,
   });
 
-  // Upsert on external_id so a redelivered webhook — which every booking tool
-  // does eventually — updates the same booking instead of creating a second.
+  // Upsert on external_id so a redelivered webhook, which every booking tool
+  // does eventually, updates the same booking instead of creating a second.
   const { data: booking, error } = await admin
     .from('earn_bookings')
     .upsert(
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Could not record booking.' }, { status: 500 });
   }
 
-  // An unattributed booking is still worth keeping — it is a real lead, and a
+  // An unattributed booking is still worth keeping, because it is a real lead
   // VA who submits the matching lead later can still be matched to it.
   if (!booking.lead_id) {
     return NextResponse.json({
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       break;
 
     case 'no_show':
-      // A no-show does not pay and does not move the lead backwards — the VA
+      // A no-show does not pay and does not move the lead backwards, and the VA
       // can still nudge them to rebook against the same row.
       await admin.from('earn_lead_status_events').insert({
         lead_id: booking.lead_id,

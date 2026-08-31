@@ -7,7 +7,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { leadSchema } from '@/lib/validation';
 
 /**
- * Lead submission — the most strategically important write on the site. Two
+ * Lead submission, the most strategically important write on the site. Two
  * things happen here and they are ordered deliberately: the row is committed
  * first, then the CRM is told about it. A CRM outage must never cost us the
  * lead or cost the VA their attribution.
@@ -40,9 +40,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          'That address is on the same domain as your own, so we can’t attribute ' +
+          'That address is on the same domain as your own, so we cannot credit ' +
           'it as an introduction. If this really is your employer, email us and ' +
-          'we’ll sort it out.',
+          'we will sort it out.',
       },
       { status: 422 },
     );
@@ -55,9 +55,9 @@ export async function POST(request: NextRequest) {
     .eq('user_id', user.id)
     .gte('created_at', dayAgo);
 
-  // Over the velocity threshold the lead is still accepted — a genuinely
-  // productive VA should not be blocked — but it is flagged for a human to look
-  // at before any money moves.
+  // Over the velocity threshold the lead is still accepted, because a genuinely
+  // productive VA should keep working, and it is flagged for a human to look at
+  // before any money moves.
   const flaggedReason =
     (recentCount ?? 0) >= LEAD_VELOCITY_REVIEW_THRESHOLD
       ? `More than ${LEAD_VELOCITY_REVIEW_THRESHOLD} leads submitted in 24h`
@@ -90,11 +90,11 @@ export async function POST(request: NextRequest) {
   if (error) {
     if (error.code === '23505') {
       return NextResponse.json(
-        { error: 'You’ve already submitted this person — check your dashboard.' },
+        { error: 'You have submitted this person before, so check your dashboard for the current status.' },
         { status: 409 },
       );
     }
-    return NextResponse.json({ error: 'Could not save that. Try again.' }, { status: 500 });
+    return NextResponse.json({ error: 'We could not save that. Please try again.' }, { status: 500 });
   }
 
   await admin.from('earn_lead_status_events').insert({
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
   }
 
   // The VA's response never mentions the CRM. From their side the lead is in,
-  // and it is — retrying the sync is our problem, not theirs.
+  // and it genuinely is. Retrying a failed sync is our job to handle.
   return NextResponse.json({ id: lead.id }, { status: 201 });
 }
 

@@ -6,8 +6,8 @@ import { REF_COOKIE, REF_COOKIE_MAX_AGE, normalizeCode } from '@/lib/referral';
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  // Capture ?ref= from any entry point, not just the landing page — VAs share
-  // their link with the path they happened to be on.
+  // Capture ?ref= from every entry point, since VAs share their link with
+  // whichever path they happened to be on.
   const ref = request.nextUrl.searchParams.get('ref');
   if (ref) {
     response.cookies.set(REF_COOKIE, normalizeCode(ref), {

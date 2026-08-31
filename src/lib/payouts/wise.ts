@@ -1,7 +1,7 @@
 import type { PayoutProvider, PayoutRequest, PayoutResult } from './types';
 
 /**
- * Wise — the first rail, per the PRD's build order. Wise's own transfer
+ * Wise, the first rail, per the PRD's build order. Wise's own transfer
  * creation is a three-step dance (quote, recipient, transfer + fund); the
  * `customerTransactionId` we pass is our payout row id, which is what makes a
  * retry safe.
