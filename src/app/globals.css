@@ -74,3 +74,107 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Hero
+ *
+ * The hero photograph is bright, high-key and sunlit, so the type over it needs
+ * a scrim rather than goodwill. Two gradients stack: a gentle vertical one that
+ * blends the photo into the header above and the section below, and a strong
+ * horizontal one that sits under the text column.
+ *
+ * Opacities are chosen against the worst case, which is a pure white pixel
+ * behind the text. Where the eyebrow sits the two layers combine to roughly
+ * 0.92 Time Dark, which holds Sand Gold at about 5:1 and Still White at about
+ * 12:1 even if the photo is blown out there. That is the reason the numbers
+ * look heavy.
+ * ------------------------------------------------------------------------- */
+.tg-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: var(--color-time-dark);
+}
+
+.tg-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Keeps the person and the laptop in frame as the viewport narrows. */
+  object-position: 62% 42%;
+}
+
+.tg-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(12, 27, 29, 0.6) 0%,
+      rgba(12, 27, 29, 0.22) 26%,
+      rgba(12, 27, 29, 0.22) 62%,
+      rgba(12, 27, 29, 0.75) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(12, 27, 29, 0.92) 0%,
+      rgba(12, 27, 29, 0.88) 40%,
+      rgba(12, 27, 29, 0.8) 58%,
+      rgba(12, 27, 29, 0.74) 100%
+    );
+}
+
+/* The scrim has to stay strong wherever the type still spans the frame. Between
+   768px and 1280px the column is viewport-bound and the headline runs almost
+   edge to edge, so the falloff only bottoms out at 0.74. Above 1280px the
+   container stops growing and the text is genuinely confined to the left, which
+   is where the photograph can finally be let through. */
+@media (min-width: 768px) {
+  .tg-hero__scrim {
+    background-image:
+      linear-gradient(
+        to bottom,
+        rgba(12, 27, 29, 0.55) 0%,
+        rgba(12, 27, 29, 0.2) 28%,
+        rgba(12, 27, 29, 0.2) 66%,
+        rgba(12, 27, 29, 0.72) 100%
+      ),
+      linear-gradient(
+        to right,
+        rgba(12, 27, 29, 0.92) 0%,
+        rgba(12, 27, 29, 0.88) 55%,
+        rgba(12, 27, 29, 0.78) 80%,
+        rgba(12, 27, 29, 0.74) 100%
+      );
+  }
+}
+
+@media (min-width: 1280px) {
+  .tg-hero__scrim {
+    background-image:
+      linear-gradient(
+        to bottom,
+        rgba(12, 27, 29, 0.55) 0%,
+        rgba(12, 27, 29, 0.18) 28%,
+        rgba(12, 27, 29, 0.18) 66%,
+        rgba(12, 27, 29, 0.7) 100%
+      ),
+      linear-gradient(
+        to right,
+        rgba(12, 27, 29, 0.92) 0%,
+        rgba(12, 27, 29, 0.87) 40%,
+        rgba(12, 27, 29, 0.5) 68%,
+        rgba(12, 27, 29, 0.12) 100%
+      );
+  }
+}
+
+/* Belt and braces on the two lines that carry the most weight. The scrim alone
+   already clears AA, and this holds the edges together over busy foliage. */
+.tg-hero__type {
+  text-shadow: 0 1px 18px rgba(8, 20, 22, 0.55);
+}

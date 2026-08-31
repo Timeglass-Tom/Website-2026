@@ -1,9 +1,11 @@
+import Image from 'next/image';
 import { ButtonLink } from '@/components/Button';
 import { Faq } from '@/components/Faq';
 import { Logo } from '@/components/Logo';
 import { TrackOnMount } from '@/components/TrackOnMount';
 import { EARN_EVENTS } from '@/lib/analytics';
 import { TIMEGLASS_URL } from '@/config/program';
+import { BASE_PATH } from '@/config/site';
 import {
   faq,
   footerCta,
@@ -44,27 +46,40 @@ export default function LandingPage() {
       </header>
 
       <main>
-        {/* Hero */}
-        <section className="px-6 pt-16 pb-20 sm:pt-24 sm:pb-28">
-          <div className="mx-auto max-w-6xl">
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-sand-gold">
+        {/* Hero. The photograph sits behind the type, under the scrim defined
+            in globals.css. Drop the image at public/hero.jpg and it appears
+            here; while it is absent the Time Dark ground shows through and the
+            section still reads as intended. */}
+        <section className="tg-hero px-6 pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-32 lg:pb-36">
+          <Image
+            src={`${BASE_PATH}/hero.jpg`}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="tg-hero__media"
+          />
+          <div className="tg-hero__scrim" aria-hidden="true" />
+
+          <div className="relative mx-auto max-w-6xl">
+            <p className="tg-hero__type font-display text-[14px] font-medium uppercase tracking-[0.16em] text-sand-gold sm:text-[15px]">
               {hero.eyebrow}
             </p>
-            <h1 className="font-display text-balance mt-6 max-w-[19ch] text-[42px] font-light leading-[1.02] text-still-white sm:text-[68px]">
+            <h1 className="tg-hero__type font-display text-balance mt-6 max-w-[19ch] text-[42px] font-light leading-[1.02] text-still-white sm:text-[68px]">
               {hero.headline}
             </h1>
-            <p className="mt-7 max-w-[52ch] text-[17px] leading-[1.6] text-pale-flow sm:text-[19px]">
+            <p className="tg-hero__type mt-7 max-w-[46ch] text-[17px] leading-[1.6] text-still-white/90 sm:text-[19px]">
               {hero.subhead}
             </p>
             <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <ButtonLink href="/sign-up" arrow className="w-full sm:w-auto">
                 {hero.cta}
               </ButtonLink>
-              <p className="text-[14px] text-dark-muted">
+              <p className="tg-hero__type text-[14px] text-still-white/75">
                 {hero.signInPrompt}{' '}
                 <a
                   href="/earn/sign-in"
-                  className="text-pale-flow underline underline-offset-[3px] hover:text-still-white"
+                  className="text-still-white underline underline-offset-[3px] hover:text-sand-gold"
                 >
                   {hero.signInCta}
                 </a>
