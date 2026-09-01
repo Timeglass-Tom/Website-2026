@@ -88,40 +88,52 @@ adding Payoneer or USDC is a new file rather than a change to the ledger.
 
 ## The hero image
 
-**`public/hero.jpg` is not in the repo and has to be added.** While it is
-absent the hero falls back to the Time Dark ground and still reads as intended,
-so nothing breaks. Drop the photograph in at that exact path and it appears.
+`public/hero.jpg` is what the site loads. It is a 2400px wide, 580KB JPEG
+generated from the master in `assets/`, which is a 5408x3072 PNG weighing 23MB.
+The master lives outside `public/` on purpose, since everything in `public/` is
+served and deployed, and nobody should be able to pull 23MB off the marketing
+site. Regenerate the served copy with sharp, which Next already depends on:
 
-Ship it around 2400px wide and compressed. `object-position: 62% 42%` keeps the
-subject in frame as the viewport narrows, and that value is in `globals.css` if
-a different crop suits the photograph better.
+```bash
+node -e "require('sharp')('assets/Hammock Hero With Timeglass Screen.png')
+  .resize({width:2400}).jpeg({quality:82,mozjpeg:true}).toFile('public/hero.jpg')"
+```
 
 The type sits over the photograph behind a two-gradient scrim: a gentle vertical
 one blending into the header above and the section below, and a strong
-horizontal one under the text column. The opacities look heavy because they are
-set against the worst case, which is a blown-out white pixel behind the type.
+horizontal one under the text column. `object-position: 50% 46%` holds the
+laptop and the hands, which are the subject and sit in the middle of the frame.
 
-Contrast was measured rather than eyeballed, by rendering the built page over a
-pure white frame and sampling the composited pixels behind the actual glyph
-boxes. Every line clears WCAG AA at every width tested, and since the test
-background is pure white, a real photograph can only improve on these:
+Contrast was measured rather than eyeballed, by rendering the built page and
+sampling the composited pixels behind the actual glyph boxes. Every line clears
+WCAG AA at every width tested:
 
 | Line | Required | Worst measured |
 |---|---|---|
-| Eyebrow, Sand Gold on photo | 4.5:1 | 5.38:1 |
-| Headline, Still White | 3:1 (large text) | 6.10:1 |
-| Sub-headline | 4.5:1 | 7.16:1 |
-| Sign-in line | 4.5:1 | 7.18:1 |
+| Eyebrow, Sand Gold on photo | 4.5:1 | 5.86:1 |
+| Headline, Still White | 3:1 (large text) | 6.46:1 |
+| Sub-headline | 4.5:1 | 8.10:1 |
+| Sign-in line | 4.5:1 | 7.66:1 |
 
 Tested at 360, 390, 600, 768, 820, 1024, 1280, 1440 and 1920px wide. The scrim
 has three tiers, because between 768px and 1280px the text still spans the frame
 and the falloff has to stay high, while above 1280px the container stops growing
 and the photograph can be let through on the right.
 
-Note that `next/image` does not prefix `basePath` onto the `url` param it hands
-the optimizer, so the hero builds its src from the shared `BASE_PATH` constant
-in `src/config/site.ts`. A bare `/hero.jpg` resolves to a file that does not
-exist and the optimizer answers 400.
+The same measurement was also run against a blown-out white frame in place of
+the photograph, which is the upper bound on how light any background pixel can
+be. It passes there too, so swapping in a different photograph cannot break the
+type.
+
+Two things to know when changing the image:
+
+- `next/image` does not prefix `basePath` onto the `url` param it hands the
+  optimizer, so the hero builds its src from the shared `BASE_PATH` constant in
+  `src/config/site.ts`. A bare `/hero.jpg` resolves to a file that does not
+  exist and the optimizer answers 400.
+- The optimizer caches by URL under `.next/cache/images`, so replacing
+  `hero.jpg` while keeping the filename serves the old bytes. Clear `.next`
+  after swapping the image or you will be looking at the previous one.
 
 ## Design and copy
 

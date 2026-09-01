@@ -103,8 +103,10 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Keeps the person and the laptop in frame as the viewport narrows. */
-  object-position: 62% 42%;
+  /* The laptop and the hands are the subject and they sit in the middle of the
+     frame, so the crop holds the centre. Slightly above the midpoint keeps the
+     screen rather than the foreground when a wide viewport trims the height. */
+  object-position: 50% 46%;
 }
 
 .tg-hero__scrim {
