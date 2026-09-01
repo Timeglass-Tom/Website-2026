@@ -6,7 +6,6 @@ import { StatusPill } from '@/components/StatusPill';
 import { PitchEmail } from '@/components/PitchEmail';
 import {
   ATTENDANCE_BOUNTY_USD,
-  MIN_PAYOUT_USD,
   PAYOUT_DAY,
   PAYOUT_METHODS,
   VA_REFERRAL_BOUNTY_USD,
@@ -167,9 +166,7 @@ export default async function DashboardPage() {
       <section>
         <SectionHeading
           title="Payouts"
-          note={`Payments go out every ${PAYOUT_DAY} once you have cleared ${usd(
-            MIN_PAYOUT_USD,
-          )}.`}
+          note={`Payments go out every ${PAYOUT_DAY}.`}
         />
 
         <div className="mt-4 rounded-[16px] border border-deep-focus bg-deep-time p-5">
@@ -187,13 +184,6 @@ export default async function DashboardPage() {
               Change it
             </Link>
           </p>
-
-          {summary.clearedUsd > 0 && summary.clearedUsd < MIN_PAYOUT_USD && (
-            <p className="mt-3 text-[13.5px] text-dark-muted">
-              {formatUsd(summary.clearedUsd)} is cleared and waiting, and payouts go
-              out once you reach {usd(MIN_PAYOUT_USD)}.
-            </p>
-          )}
 
           {payouts.length === 0 ? (
             <p className="mt-3 text-[13.5px] text-dark-muted">No payouts yet.</p>

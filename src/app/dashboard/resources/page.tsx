@@ -4,7 +4,7 @@ import { collateral, dosAndDonts } from '@/content/pitch';
 import { PayoutMethodForm } from '@/components/PayoutMethodForm';
 import { loadDashboard } from '@/lib/dashboard';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
-import { MIN_PAYOUT_USD, PAYOUT_DAY, PAYOUT_HOLD_DAYS, usd } from '@/config/program';
+import { PAYOUT_DAY, PAYOUT_HOLD_DAYS } from '@/config/program';
 
 export const metadata: Metadata = { title: 'How to pitch your boss' };
 
@@ -100,10 +100,9 @@ export default async function ResourcesPage() {
             How you get paid
           </h2>
           <p className="mt-3 text-[15px] leading-[1.62] text-pale-flow">
-            Cleared earnings go out every {PAYOUT_DAY} once you have reached{' '}
-            {usd(MIN_PAYOUT_USD)}. Earnings are held for {PAYOUT_HOLD_DAYS} days
-            after a call is marked attended so we can run a fraud review, and there
-            is nothing for you to do during that time.
+            Your earnings go out every {PAYOUT_DAY}. They are held for{' '}
+            {PAYOUT_HOLD_DAYS} days after a call is marked attended so we can run a
+            fraud review, and there is nothing for you to do during that time.
           </p>
           <div className="mt-6 max-w-[22rem]">
             <PayoutMethodForm current={profile.payout_method} />

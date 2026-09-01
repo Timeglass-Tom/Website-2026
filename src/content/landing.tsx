@@ -82,7 +82,7 @@ export const howItWorks = {
     },
   ],
   footnote:
-    'Everything is paid in USD every Friday once you have cleared $20, and you can take it through PayPal, Wise, GCash, Payoneer, or USDC.',
+    'Everything is paid in USD every Friday, and you can take it through PayPal, Wise, GCash, Payoneer, or USDC.',
 };
 
 export type FaqItem = { q: string; a: ReactNode };
