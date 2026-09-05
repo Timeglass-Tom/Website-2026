@@ -1,0 +1,1134 @@
+<title>Timeglass Email Audit</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#FAF8F4; --raised:#FFFDFA; --sunken:#F1ECE3; --rule:#E2DACB; --rule-soft:#EEE8DC;
+  --ink:#0C1B1D; --ink-2:#4A5A5B; --ink-3:#7C8A88;
+  --accent:#8A5F12; --accent-mark:#DA9944; --accent-soft:#F6ECD8;
+  --good:#1F7A4D; --good-bg:#E6F1EA; --watch:#8A5F12; --watch-bg:#F8EEDA;
+  --risk:#B33C24; --risk-bg:#F8E7E1; --crit:#8E2A17; --crit-bg:#F4DED8;
+  --dead:#6F6A61; --dead-bg:#EDE9E1;
+  --s1:#B33C24; --s2:#0090A6; --s3:#DA9944; --s4:#5B57C9; --s5:#1F7A4D;
+  --grid:#E5DED1; --shadow:0 1px 2px rgba(12,27,29,.05), 0 8px 24px rgba(12,27,29,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0C1B1D; --raised:#132628; --sunken:#0A1618; --rule:#26393B; --rule-soft:#1C2E30;
+  --ink:#F2EFE8; --ink-2:#A8B8B7; --ink-3:#74898A;
+  --accent:#DA9944; --accent-mark:#DA9944; --accent-soft:#2A2317;
+  --good:#57B888; --good-bg:#122A20; --watch:#D3A24A; --watch-bg:#2A2214; --risk:#E58163; --risk-bg:#2E1912;
+  --crit:#F09A80; --crit-bg:#331711; --dead:#8E9694; --dead-bg:#1B2426;
+  --s1:#C4482B; --s2:#17A6BC; --s3:#B98230; --s4:#7C77E0; --s5:#2A9160;
+  --grid:#22383A; --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}}
+:root[data-theme="dark"]{
+  --ground:#0C1B1D; --raised:#132628; --sunken:#0A1618; --rule:#26393B; --rule-soft:#1C2E30;
+  --ink:#F2EFE8; --ink-2:#A8B8B7; --ink-3:#74898A;
+  --accent:#DA9944; --accent-mark:#DA9944; --accent-soft:#2A2317;
+  --good:#57B888; --good-bg:#122A20; --watch:#D3A24A; --watch-bg:#2A2214; --risk:#E58163; --risk-bg:#2E1912;
+  --crit:#F09A80; --crit-bg:#331711; --dead:#8E9694; --dead-bg:#1B2426;
+  --s1:#C4482B; --s2:#17A6BC; --s3:#B98230; --s4:#7C77E0; --s5:#2A9160;
+  --grid:#22383A; --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:Archivo,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.011em}
+p{margin:0}
+a{color:var(--accent)}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.prose{font-family:"Source Serif 4",Georgia,serif;font-size:15px;line-height:1.62;color:var(--ink-2)}
+.eyebrow{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+:focus-visible{outline:2px solid var(--accent-mark);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* shell */
+.shell{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--sunken);border-right:1px solid var(--rule);padding:22px 16px 28px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brandmark{display:flex;align-items:baseline;gap:8px}
+.brandmark b{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.brandmark span{font-size:10.5px;color:var(--ink-3);font-weight:500}
+.railnav{display:flex;flex-direction:column;gap:1px}
+.railnav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;font-size:13px;color:var(--ink-2);font-weight:500}
+.railnav button:hover{background:var(--rule-soft);color:var(--ink)}
+.railnav button[aria-current="true"]{background:var(--raised);color:var(--ink);font-weight:600;box-shadow:inset 2px 0 0 var(--accent-mark)}
+.railnav .idx{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);width:12px}
+.railfoot{margin-top:auto;font-size:11px;color:var(--ink-3);line-height:1.5;display:flex;flex-direction:column;gap:9px}
+.railfoot dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+.railfoot dt{color:var(--ink-3)}.railfoot dd{margin:0;color:var(--ink-2);font-family:"IBM Plex Mono",monospace}
+main{min-width:0;padding:0 0 72px}
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);padding:14px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.topbar h1{font-size:16px;flex:1;min-width:180px}
+.seg{display:inline-flex;background:var(--sunken);border:1px solid var(--rule);border-radius:7px;padding:2px}
+.seg button{all:unset;cursor:pointer;padding:4px 11px;border-radius:5px;font-size:12px;font-weight:600;color:var(--ink-3)}
+.seg button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--shadow)}
+.iconbtn{all:unset;cursor:pointer;padding:5px 10px;border:1px solid var(--rule);border-radius:7px;font-size:12px;font-weight:600;color:var(--ink-2);background:var(--raised)}
+.iconbtn:hover{color:var(--ink);border-color:var(--ink-3)}
+.view{padding:26px 28px 0;max-width:1240px}
+.view[hidden]{display:none!important}
+.lede{max-width:70ch;margin:8px 0 22px}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:26px}
+.tile{background:var(--raised);padding:14px 16px 15px;display:flex;flex-direction:column;gap:5px}
+.tile .k{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.tile .v{font-family:"IBM Plex Mono",monospace;font-size:25px;font-weight:500;letter-spacing:-.02em;line-height:1}
+.tile .sub{font-size:11.5px;color:var(--ink-3)}
+.tile.alert .v{color:var(--risk)}
+.tile.win .v{color:var(--good)}
+@media(min-width:760px){.tiles{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1180px){.tiles.five{grid-template-columns:repeat(5,1fr)}}
+
+/* generic block */
+.block{margin-bottom:34px}
+.block>h2{font-size:15px;margin-bottom:3px}
+.block>.hint{font-size:12.5px;color:var(--ink-3);margin-bottom:14px;max-width:74ch}
+.panel{background:var(--raised);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.panel-pad{padding:18px 20px}
+
+/* tables */
+.tblwrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--raised)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:820px}
+thead th{position:sticky;top:0;background:var(--sunken);text-align:left;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap;z-index:2}
+thead th.n,tbody td.n{text-align:right}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.clickable{cursor:pointer}
+tbody tr.clickable:hover{background:var(--sunken)}
+tbody tr[aria-selected="true"]{background:var(--accent-soft)}
+td.n,th.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.nm{font-weight:600;color:var(--ink)}
+.sj{color:var(--ink-2);font-size:11.5px;display:block;margin-top:1px;max-width:38ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stripe{display:inline-block;width:3px;height:13px;border-radius:2px;vertical-align:-2px;margin-right:7px}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:1.5px 7px;border-radius:20px;font-size:10.5px;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.p-good{background:var(--good-bg);color:var(--good)}
+.p-watch{background:var(--watch-bg);color:var(--watch)}
+.p-risk{background:var(--risk-bg);color:var(--risk)}
+.p-crit{background:var(--crit-bg);color:var(--crit)}
+.p-dead{background:var(--dead-bg);color:var(--dead)}
+.p-none{background:var(--sunken);color:var(--ink-3)}
+
+/* filters */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.filters select,.filters input{font-family:inherit;font-size:12px;padding:5px 9px;border:1px solid var(--rule);border-radius:7px;background:var(--raised);color:var(--ink)}
+.filters input{min-width:190px}
+.filters .count{font-size:11.5px;color:var(--ink-3);margin-left:auto;font-family:"IBM Plex Mono",monospace}
+
+/* rubric */
+.dots{display:inline-flex;gap:2.5px;vertical-align:-1px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--rule);display:block}
+.dots i.on{background:var(--accent-mark)}
+.dots i.lo{background:var(--risk)}
+.rubgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:9px;overflow:hidden}
+.rubcell{background:var(--raised);padding:11px 13px;display:flex;flex-direction:column;gap:5px}
+.rubcell .rh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rubcell .rl{font-size:11px;font-weight:600;color:var(--ink-2)}
+.rubcell .rr{font-size:11.5px;color:var(--ink-3);line-height:1.45}
+
+/* detail */
+.detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px}
+@media(max-width:900px){.detail{grid-template-columns:1fr}.shell{grid-template-columns:1fr}.rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center}.railnav{flex-direction:row;flex-wrap:wrap}.railfoot{display:none}}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12.5px}
+.kv dt{color:var(--ink-3)}.kv dd{margin:0;color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:12px}
+.metricgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:9px;overflow:hidden}
+.mcell{background:var(--raised);padding:10px 12px}
+.mcell .k{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.mcell .v{font-family:"IBM Plex Mono",monospace;font-size:17px;margin-top:3px;letter-spacing:-.02em}
+.mcell .b{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+.issues{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:9px}
+.issues li{display:grid;grid-template-columns:auto 1fr;gap:9px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.issues li b{color:var(--ink);font-weight:600}
+.idot{width:7px;height:7px;border-radius:50%;background:var(--ink-3);margin-top:6px;flex:none}
+.idot.bad{background:var(--risk)}
+
+/* charts */
+.chartcard{background:var(--raised);border:1px solid var(--rule);border-radius:10px;padding:16px 18px 12px;box-shadow:var(--shadow)}
+.chartcard h3{font-size:13px;margin-bottom:2px}
+.chartcard .cap{font-size:11.5px;color:var(--ink-3);margin-bottom:14px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--ink-2);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:2px;display:block}
+svg text{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+
+/* cadence */
+.cad{display:grid;grid-template-columns:150px minmax(0,1fr);gap:0;font-size:11.5px}
+.cadrow{display:contents}
+.cadlbl{padding:5px 10px 5px 0;color:var(--ink-2);border-bottom:1px solid var(--rule-soft);display:flex;align-items:center;gap:6px}
+.cadtrack{position:relative;height:28px;border-bottom:1px solid var(--rule-soft);border-left:1px solid var(--rule)}
+.cadtick{position:absolute;top:0;bottom:0;width:1px;background:var(--rule-soft)}
+.cadmark{position:absolute;top:6px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;min-width:15px}
+.cadaxis{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-3);padding-top:5px;font-family:"IBM Plex Mono",monospace}
+
+/* notes / callouts */
+.note{border-left:3px solid var(--rule);padding:11px 0 11px 15px;font-size:12.5px;color:var(--ink-2);line-height:1.55;max-width:76ch}
+.note.warn{border-color:var(--risk)}
+.note.info{border-color:var(--accent-mark)}
+.note b{color:var(--ink)}
+.gap{background:var(--sunken);border:1px dashed var(--rule);border-radius:9px;padding:14px 16px;font-size:12.5px;color:var(--ink-2);line-height:1.55}
+.gap b{color:var(--ink)}
+ul.tight{margin:7px 0 0;padding-left:17px;font-size:12.5px;color:var(--ink-2);line-height:1.6}
+ul.tight li{margin-bottom:3px}
+.srcs{font-size:11.5px;color:var(--ink-3);line-height:1.6}
+.srcs a{color:var(--ink-2)}
+
+/* recs */
+.rec{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:14px;padding:15px 18px;border-bottom:1px solid var(--rule-soft);align-items:start}
+.rec:last-child{border-bottom:0}
+.rec .rk{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);padding-top:2px}
+.rec h4{font-size:13.5px;margin-bottom:4px}
+.rec .why{font-size:12.5px;color:var(--ink-2);line-height:1.55;max-width:72ch}
+.rec .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.rec .rt{display:flex;flex-direction:column;gap:5px;align-items:flex-end;font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.tagrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+
+@media print{
+  .rail,.topbar,.filters{display:none!important}
+  .view[hidden]{display:block!important}
+  body{background:#fff}
+  .shell{display:block}
+  .view{page-break-before:always;max-width:none;padding:12px 0}
+  .panel,.tblwrap,.chartcard{box-shadow:none}
+  table{min-width:0;font-size:9.5px}
+}
+</style>
+<div class="shell">
+  <nav class="rail">
+    <div class="brandmark"><b>Email Audit</b><span>Timeglass</span></div>
+    <div class="railnav" id="nav">
+      <button data-v="summary" aria-current="true"><span class="idx">00</span>Findings</button>
+      <button data-v="inventory"><span class="idx">01</span>Inventory</button>
+      <button data-v="category"><span class="idx">02</span>Categories</button>
+      <button data-v="deep"><span class="idx">03</span>Email detail</button>
+      <button data-v="segments"><span class="idx">04</span>Segments</button>
+      <button data-v="cadence"><span class="idx">05</span>Cadence</button>
+      <button data-v="bench"><span class="idx">06</span>Benchmarks</button>
+      <button data-v="recs"><span class="idx">07</span>Recommendations</button>
+      <button data-v="method"><span class="idx">08</span>Method &amp; gaps</button>
+    </div>
+    <div class="railfoot">
+      <dl>
+        <dt>Workspace</dt><dd>202279</dd>
+        <dt>Pulled</dt><dd>2026-09-04</dd>
+        <dt>Emails</dt><dd>67</dd>
+        <dt>Source</dt><dd>Customer.io</dd>
+      </dl>
+      <div>Inventory is all-time. Performance defaults to lifetime; switch to 90&#8209;day in the header.</div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="topbar">
+      <h1 id="vtitle">Findings</h1>
+      <div class="seg" role="group" aria-label="Metrics window">
+        <button data-w="life" aria-pressed="true">Lifetime</button>
+        <button data-w="d90" aria-pressed="false">90&#8209;day</button>
+      </div>
+      <button class="iconbtn" id="themebtn" aria-label="Toggle colour theme">Theme</button>
+      <button class="iconbtn" onclick="window.print()">Export PDF</button>
+    </div>
+
+    <!-- ============ 00 FINDINGS ============ -->
+    <section class="view" id="v-summary">
+      <p class="lede prose">Sixty-seven distinct emails are configured in Customer.io. Across their lifetime they have produced <b>36,487 sends</b>. Two things dominate the picture: the program's single largest asset is opened and then ignored, and its single largest sender is quietly burning the sending domain.</p>
+
+      <div class="tiles" id="tiles-top"></div>
+
+      <div class="block">
+        <h2>The five things worth acting on</h2>
+        <p class="hint">Ordered by the size of the problem, not by how easy it is to fix. Full detail, effort and owner in Recommendations.</p>
+        <div class="panel" id="headline-findings"></div>
+      </div>
+
+      <div class="block">
+        <h2>Where the volume actually goes</h2>
+        <p class="hint">Lifetime sends by category. The program is not the marketing program anyone describes &mdash; it is a digest with a cold-outbound campaign attached.</p>
+        <div class="chartcard"><div id="volchart"></div></div>
+      </div>
+
+      <div class="block two">
+        <div class="chartcard">
+          <h3>Human open rate by category</h3>
+          <p class="cap">Lifetime, human opens &divide; delivered. Bot and prefetch opens excluded. Shaded band is the published B2B&nbsp;SaaS range for that email type.</p>
+          <div id="opencat"></div>
+        </div>
+        <div class="chartcard">
+          <h3>Click-to-open by category</h3>
+          <p class="cap">Human clicks &divide; human opens &mdash; what people do once they are already inside the email. Band is the 10&ndash;15% &ldquo;good&rdquo; range.</p>
+          <div id="ctorcat"></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>What is working</h2>
+        <div class="panel panel-pad">
+          <ul class="issues" id="wins"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 01 INVENTORY ============ -->
+    <section class="view" id="v-inventory" hidden>
+      <p class="lede prose">Every email configured in the workspace, live or not. Sorted by lifetime sends. Click any row to open its detail view.</p>
+      <div class="filters">
+        <input id="q" type="search" placeholder="Search name, subject, template&hellip;" aria-label="Search emails">
+        <select id="f-cat" aria-label="Filter by category"><option value="">All categories</option></select>
+        <select id="f-status" aria-label="Filter by status"><option value="">All statuses</option></select>
+        <select id="f-flag" aria-label="Filter by issue">
+          <option value="">All emails</option>
+          <option value="never">Never sends</option>
+          <option value="dup">Duplicate content</option>
+          <option value="nounsub">No unsubscribe link</option>
+          <option value="lowscore">Any rubric score &le;2</option>
+          <option value="deliver">Deliverability flag</option>
+        </select>
+        <span class="count" id="rowcount"></span>
+      </div>
+      <div class="tblwrap"><table id="invtable">
+        <thead><tr>
+          <th>Email</th><th>Category</th><th>Status</th>
+          <th class="n">Sends</th><th class="n">Deliv.</th><th class="n">Open</th><th class="n">CTR</th><th class="n">CTOR</th>
+          <th class="n">Unsub</th><th class="n">Bounce</th><th>Rubric</th><th>Flags</th>
+        </tr></thead>
+        <tbody id="invbody"></tbody>
+      </table></div>
+      <p class="srcs" style="margin-top:10px">Open, CTR and CTOR use <b>human</b> events only. Machine opens (Apple Mail Privacy Protection and scanner prefetch) run at 1.4&times; human opens program-wide and are excluded throughout; the Customer.io UI columns include them, so numbers here read lower than the UI on purpose.</p>
+    </section>
+
+    <!-- ============ 02 CATEGORY ============ -->
+    <section class="view" id="v-category" hidden>
+      <p class="lede prose">Six buckets, scored against the benchmark that fits each one. A password reset is not graded on revenue; a cold sequence is not graded against opted-in norms.</p>
+      <div id="catcards"></div>
+    </section>
+
+    <!-- ============ 03 DEEP DIVE ============ -->
+    <section class="view" id="v-deep" hidden>
+      <div class="filters">
+        <select id="pick" aria-label="Choose an email"></select>
+        <span class="count" id="pickmeta"></span>
+      </div>
+      <div id="deepbody"></div>
+    </section>
+
+    <!-- ============ 04 SEGMENTS ============ -->
+    <section class="view" id="v-segments" hidden>
+      <p class="lede prose">The brief asks for every view to slice by lifecycle stage, workspace size and acquisition source. One of those three is available today. This page says which, and what it would take to get the other two.</p>
+      <div class="block">
+        <h2>Acquisition source &mdash; available now</h2>
+        <p class="hint">Each campaign's trigger identifies where the person came from, so source is derivable from Customer.io alone without any CRM join.</p>
+        <div class="tblwrap"><table id="srctable">
+          <thead><tr><th>Source</th><th>How it is identified</th><th class="n">Emails</th><th class="n">Sends</th><th class="n">Open</th><th class="n">CTR</th><th class="n">Unsub</th><th class="n">Bounce</th></tr></thead>
+          <tbody id="srcbody"></tbody>
+        </table></div>
+        <div class="note info" style="margin-top:14px"><b>The headline from this cut:</b> paid and cold-sourced contacts are 63% of all sends and produce 24% of human clicks. Product-sourced contacts &mdash; people who signed up, or were invited by a colleague &mdash; are 37% of sends and 76% of human clicks. Everything the program does well, it does to people who already arrived on their own.</div>
+      </div>
+      <div class="block">
+        <h2>Lifecycle stage &mdash; partial</h2>
+        <p class="hint">Stage is inferrable from campaign membership but not measurable at the person level in this workspace.</p>
+        <div class="panel panel-pad">
+          <div class="rubgrid" id="lifecycle"></div>
+        </div>
+      </div>
+      <div class="block">
+        <h2>Workspace size &mdash; blocked</h2>
+        <div class="gap">
+          <b>Not available and not fakeable.</b> Workspace size lives in the product database, not in Customer.io. No profile attribute in this workspace carries seat count, plan tier or team size, so no send in this audit can be attributed to a size band.
+          <ul class="tight">
+            <li>To unblock: sync <span class="num">seat_count</span>, <span class="num">plan_tier</span> and <span class="num">workspace_id</span> onto the Customer.io profile, then re-run this cut. The Supabase project already holds all three.</li>
+            <li>Until then, treat any size-based claim about email performance as unevidenced &mdash; including in the phase&#8209;2 redesign brief.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 CADENCE ============ -->
+    <section class="view" id="v-cadence" hidden>
+      <p class="lede prose">A frequency cap exists in this workspace. It is set to one email per seven days, and it is switched on for exactly one of eleven automations. Here is what that means for a real person.</p>
+
+      <div class="tiles five" id="tiles-cad"></div>
+
+      <div class="block">
+        <h2>What a new signup receives in their first two weeks</h2>
+        <p class="hint">Day 0 is workspace creation. Onboarding path shown for a user who has not completed setup and has not installed the desktop app &mdash; the most common branch. Daily Digest fires every day the workspace has activity.</p>
+        <div class="chartcard"><div id="cadchart"></div>
+          <div class="legend">
+            <span><i style="background:var(--s5)"></i>Onboarding</span>
+            <span><i style="background:var(--s2)"></i>Daily Digest</span>
+            <span><i style="background:var(--s4)"></i>Weekly Digest</span>
+            <span><i style="border:1px dashed var(--ink-3);background:transparent"></i>Configured but never fires</span>
+            <span><i style="background:var(--risk)"></i>Two or more in one day</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>Where messages collide</h2>
+        <div class="panel"><ul class="issues" id="collisions" style="padding:18px 20px"></ul></div>
+      </div>
+
+      <div class="block">
+        <h2>Frequency cap coverage</h2>
+        <div class="tblwrap"><table id="captable">
+          <thead><tr><th>Automation</th><th>Cap mode</th><th class="n">Emails</th><th class="n">Max in 7 days</th><th>Effect</th></tr></thead>
+          <tbody id="capbody"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ============ 06 BENCHMARKS ============ -->
+    <section class="view" id="v-bench" hidden>
+      <p class="lede prose">Published norms vary widely by source, mostly because privacy tooling has inflated reported open rates since 2021. Ranges are shown rather than a single number, and Timeglass is placed inside them.</p>
+      <div class="block">
+        <h2>Timeglass against published B2B SaaS norms</h2>
+        <div class="tblwrap"><table id="benchtable">
+          <thead><tr><th>Metric</th><th>Email type</th><th class="n">Published range</th><th class="n">Timeglass</th><th>Read</th></tr></thead>
+          <tbody id="benchbody"></tbody>
+        </table></div>
+        <p class="srcs" style="margin-top:12px" id="benchsrc"></p>
+      </div>
+      <div class="block">
+        <h2>Competitor teardown</h2>
+        <div class="gap">
+          <b>Not delivered as specified &mdash; and the reason matters.</b> The brief calls for subscribing to two or three competitors' lists, signing up for their products and capturing every onboarding email in order with timing. That is a multi-week data collection exercise requiring live mailboxes and product accounts; this environment has no outbound web access beyond search, so no competitor email was received, opened or captured. Nothing below is a teardown, and presenting desk research as one would poison the comparison the phase&#8209;2 brief depends on.
+          <ul class="tight">
+            <li><b>What is genuinely known:</b> the closest automatic-tracking competitors are Timely, Memtime and Toggl Track. Timely runs a 14&#8209;day trial with no card required; Toggl Track runs 30 days; Memtime runs a trial from roughly $12/user/month. Trial length sets the clock every onboarding sequence has to fit inside &mdash; Timeglass's own onboarding currently runs 8 days of email into a trial whose end triggers a separate billing sequence.</li>
+            <li><b>To actually run it:</b> create three throwaway domains, sign up to each competitor's product and marketing list on the same day, and log every message for 30 days with timestamp, subject, sender identity and CTA. Two weeks of elapsed time, about a day of analysis.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 07 RECOMMENDATIONS ============ -->
+    <section class="view" id="v-recs" hidden>
+      <p class="lede prose">Twenty-one changes, grouped by how much work they are. Confidence says how much the evidence in this audit supports the claim &mdash; high means the data shows it directly, medium means the data is consistent with it, low means it needs a test.</p>
+      <div class="tagrow">
+        <span class="pill p-good">Quick win &mdash; days</span>
+        <span class="pill p-watch">Medium &mdash; a sprint</span>
+        <span class="pill p-risk">Structural &mdash; phase 2</span>
+      </div>
+      <div id="recbody"></div>
+    </section>
+
+    <!-- ============ 08 METHOD ============ -->
+    <section class="view" id="v-method" hidden>
+      <p class="lede prose">What was measured, how, and what could not be measured. Read this before quoting any number elsewhere.</p>
+      <div class="block">
+        <h2>Sources actually used</h2>
+        <div class="panel panel-pad"><ul class="issues" id="sources"></ul></div>
+      </div>
+      <div class="block">
+        <h2>Gaps in this audit</h2>
+        <div class="panel"><ul class="issues" id="gaps" style="padding:18px 20px"></ul></div>
+      </div>
+      <div class="block">
+        <h2>Rubric definition</h2>
+        <p class="hint">Six dimensions, scored 1&ndash;5 against a fixed definition so scores are comparable across emails. Every score in this audit carries a written rationale on the email's detail page.</p>
+        <div class="rubgrid" id="rubdef"></div>
+      </div>
+      <div class="block">
+        <h2>Open questions the kickoff still needs to answer</h2>
+        <div class="panel"><ul class="issues" id="openq" style="padding:18px 20px"></ul></div>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+/* ---------- rationale families: one written rationale reused by every email built from the same template family ---------- */
+const FAM = {
+ ONB:{cta:"One product deep-link plus a Calendly link in every email. Two competing actions, and the second is a sales ask inside an activation email.",des:"Shares a proper token set (--bg/--card/--accent) and a responsive card. Consistent and clean, but the accent is rgb(183,142,64) — not the 2026 brand gold #DA9944 used on the site and in the paid-social templates.",cop:"Plain, short, verb-led. Subject lines are prefixed 'Timeglass:' on six of nine, which spends the most valuable characters in the inbox on the sender's own name.",mob:"Has a real @media breakpoint at 520px and a full-width button below it. Genuinely responsive, not just fluid.",per:"first_name with a default, plus an email query param on the CTA. onboarding_step is interpolated into the URL path itself, so a null or unexpected value produces a broken link.",cad:"Fires daily on a fixed delay chain with no frequency cap, while the daily digest is also firing."},
+ CEO:{cta:"Three links — Calendly, mailto, homepage — with no visual hierarchy between them. A .button class is defined in the CSS and then never used.",des:"Off-system entirely. Uses #6a78d1 and #00a4bd, neither of which appears in the brand palette, and ships two unresolved developer comments in the CSS: 'HubSpot-ish dark blue/gray' and 'HubSpot/Timeglass Teal link color? Or standard blue'.",cop:"The strongest copy in the onboarding set — short, first-person, an honest 'we're a young company' framing. It reads like a person wrote it.",mob:"No @media query at all. Fixed 600px container with 20px padding; will letterbox on small screens.",per:"first_name with a 'there' fallback. Nothing else.",cad:"First email, sent at workspace creation. Correct placement."},
+ CHK:{cta:"Single ask, and the right one. But the Calendly href is a pre-expanded click-tracking URL (marketing.timeglass.ai/e/c/…) with a January 2026 timestamp baked into the token, pasted in rather than linked.",des:"Uses layout 2 ('Blank layout'), which carries no footer — so this email ships with no unsubscribe link and no postal address.",cop:"Warm, brief, well-judged for a nudge at day 8.",mob:"Plain text in a bare layout; renders fine anywhere.",per:"'Hi again' with no merge field, in a sequence where every other email personalises.",cad:"Sits after a conditional branch for users who completed onboarding but stalled. Reasonable timing."},
+ INV:{cta:"Exactly one action, above the fold, verb-led: Accept Invite. This is the model the rest of the program should copy.",des:"Clean card on layout 1, so the trust footer and unsubscribe are present. No brand accent, but nothing off-brand either.",cop:"Says who invited you, to what workspace, in what role. Nothing else. Correct.",mob:"No @media query, but the layout is a single stacked block and degrades safely.",per:"Four merge fields — inviter, workspace, role, team — all doing real work.",cad:"Reminders at +2, +4 and +6 days with a branch that exits on acceptance."},
+ INVR:{cta:"'Manage Invites' to a settings page. The reader cannot do the thing the email is about — chase their colleague — from inside the email.",des:"Same card as the invitee emails. Fine.",cop:"Three sends, byte-identical template, identical subject line. There is no escalation, no new information and no reason for the second or third to exist.",mob:"Single stacked block; degrades safely.",per:"invitee_email and workspace_name in the subject. The subject personalisation is good.",cad:"Fires at +2, +4 and +6 alongside the invitee's own three reminders, so a two-person invite generates six emails in six days."},
+ LOOP:{cta:"Reply-or-book, with the Calendly link buried mid-paragraph rather than presented as an action.",des:"Layout 2 — no unsubscribe link, no postal address. These are marketing nudges, not transactional mail, so that is a compliance problem rather than a style one.",cop:"Genuinely good founder-voice copy, better than most of the program.",mob:"Plain text; fine.",per:"display_name with a conditional fallback.",cad:"Randomly assigned across three variants, then re-enrolled on a 14-day loop with no exit ceiling."},
+ COLD1:{cta:"One clear ask — book time. Appropriate for a first cold touch.",des:"Layout 2: no unsubscribe link and no postal address on unsolicited commercial email.",cop:"The two A/B variants are 464 characters each and differ by the words 'grab time' versus 'grab a time' plus the subject line. Whatever this test wins, it cannot teach anything about the body.",mob:"Plain text; fine.",per:"No merge fields at all. Opens 'Hey there' to a named prospect.",cad:"First touch after RB2B identification."},
+ COLD2:{cta:"Book-a-call, every time, sixteen times. No lighter-weight action is ever offered.",des:"Layout 1, so the footer is present here — inconsistent with emails 1 and 2 of the same sequence, which are not.",cop:"Competent individually. As a sequence it repeats one claim in sixteen ways, and two pairs are near-duplicates: 'Zero behavior change required' is used as the subject twice, and templates 83 and 84 are byte-identical.",mob:"Plain text; fine.",per:"No merge fields. Sixteen emails that never use the recipient's name or company.",cad:"Every 14 days for roughly seven months. This is the only automation with the frequency cap applied."},
+ BILL:{cta:"One button, one job: add or update payment method. Best CTA discipline in the program.",des:"Layout 1 with the trust footer, an explicit preheader, and conditional blocks that change the wording by subscription state. This is the standard the rest should be held to.",cop:"Precise about what happens and when. Says what is paused and what is retained.",mob:"No @media query, but a simple single-column build.",per:"Conditional on subscription_status, with a formatted trial_end date.",cad:"Four discrete event-triggered messages with no overlap between them."},
+ PSOC:{cta:"One primary link, correctly UTM-tagged per email (email_1 through email_5). The tagging is right where nothing else in the program is tagged at all.",des:"The only templates that use the documented 2026 palette — the file carries the comment 'Still White #FAF8F4, Time Dark #0C1B1D, Deep Focus #243E41, Sand Gold #DA9944'. Table-based, bulletproof, with a 600px breakpoint.",cop:"Specific and grown-up. 'Timesheets fail on attribution long before they fail on hours' is the sharpest subject line in the workspace.",mob:"Full @media block with font-size and padding overrides. Properly built.",per:"first_name with conditional fallback.",cad:"Five emails on 24-hour delays after a 10-minute entry delay."},
+ PSOCP:{cta:"Same single CTA as the HTML variant, same UTM discipline. This is the plain-text arm of the format test.",des:"No layout, minimal markup, unsubscribe written into the body. Deliberately unstyled — that is the point of the test.",cop:"Identical copy to the HTML arm, which is what makes it a clean format test.",mob:"Text-first; renders everywhere.",per:"first_name with conditional fallback.",cad:"Mirrors the HTML arm exactly."},
+ DIG:{cta:"None. The template is a shell — {{trigger.html}} plus the trust footer — so whatever CTA exists is generated by the product, and no CTA is guaranteed by the email itself.",des:"No styling of its own. Whatever the product renders is what ships, which means the highest-volume email in the program is the one nobody is designing.",cop:"Not authored here. The subject is 'Timeglass: {{period_label}} Workspace Digest' on every single send — no signal about what is inside.",mob:"Depends entirely on product-generated HTML; not verifiable from Customer.io.",per:"period_label only. No name, no workspace, no numbers in the subject.",cad:"Daily, unconditionally, with no frequency cap and no subscription topic to opt out of separately."},
+ PROJ:{cta:"Shell template; CTA comes from the product payload.",des:"Bare wrapper plus trust footer.",cop:"Subject is fully delegated to {{trigger.subject}}, so quality is set outside Customer.io.",mob:"Product-generated; not verifiable here.",per:"Whatever the payload carries.",cad:"Event-driven on project_update. Low volume, no collisions observed."},
+ NL:{cta:"Single update-your-app action for a specific, dated release.",des:"One-off broadcast build.",cop:"Clear and correctly segmented — legacy 1.x users and native pre-2.0.4 users got separate sends rather than one blast.",mob:"Not verifiable from the broadcast record.",per:"Segment-level, not person-level. Appropriate here.",cad:"Single send, 2026-08-03, no follow-up."},
+ GUIDE:{cta:"One download button. Correct.",des:"No layout, no footer: no unsubscribe link and no postal address on a marketing lead-magnet email.",cop:"Short and does the job.",mob:"Table-based single column; safe.",per:"trigger.name with a 'there' fallback.",cad:"Single send on form submission."},
+ TXINV:{cta:"Single action — accept, or manage members.",des:"Standalone HTML with no layout, so no unsubscribe or address. Defensible for genuinely transactional invite mail.",cop:"Direct and complete.",mob:"Single stacked block.",per:"Full trigger payload with sensible defaults and a days-left calculation.",cad:"API-triggered, sent by the inviter."}
+};
+const R = (f,s,extra)=>({...FAM[f], _s:s, ...(extra||{})});
+
+/* life = [sent, delivered, humanOpen, humanClick, allOpen, allClick, bounced, failed, unsub, spam, suppressed] */
+const E = [
+/* ---- Onboarding (campaign 5) ---- */
+{id:"a72",n:"Welcome Email",s:"Timeglass: Welcome from the CEO",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:38,from:"Grant Weston <grant@timeglass.ai>",day:0,
+ life:[879,869,344,26,489,52,9,49,11,0,1],rub:R("CEO",[3,2,4,2,2,4]),
+ fl:["deliverability"],iss:["Failure rate 5.6% (49 of 879) — the highest of any onboarding email and well above the 2% concern line.","Unsubscribe rate 1.27%, roughly three times the B2B SaaS norm, on the very first email a new user receives.","CSS contains two unresolved developer comments referencing HubSpot as the colour source."]},
+{id:"a42",n:"Finish setup",s:"Timeglass: Finish Setup",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:26,from:"Timeglass <notifications@timeglasshq.com>",day:1,
+ life:[433,427,136,38,206,47,4,10,7,0,2],rub:R("ONB",[3,4,4,4,3,2]),
+ fl:[],iss:["Best click rate in the onboarding sequence at 8.9% — this is the email doing the activation work.","CTA href interpolates onboarding_step into the URL path; verify the fallback renders a valid route.","Unsubscribe rate 1.64%, the highest in the sequence."]},
+{id:"a60",n:"Download Desktop App",s:"Your Work Isn't Being Shared With Timeglass",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:34,from:"Timeglass <notifications@timeglasshq.com>",day:2,
+ life:[121,120,38,6,66,13,1,21,3,0,0],rub:R("ONB",[3,4,3,4,3,2]),
+ fl:["deliverability"],iss:["Failure rate 17.4% (21 of 121) — by far the worst in the workspace. One in six of these never leaves the building.","Unsubscribe rate 2.5%, five times the norm.","The only subject line in the sequence that leads with a negative. It is also the only one behind a two-condition branch, which is why volume is low."]},
+{id:"a55",n:"Realtime Value",s:"Timeglass: See What's Going On",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:33,from:"Timeglass <notifications@timeglasshq.com>",day:3,
+ life:[802,792,242,54,388,95,7,45,9,0,3],rub:R("ONB",[3,4,3,4,3,2]),
+ fl:["deliverability"],iss:["Has a send-time optimisation window configured (09:00–15:00 weekdays) — the only email in the workspace that does.","Failure rate 5.6%."]},
+{id:"a80",n:"Check-in Email (personal)",s:"Happy to support in any way I can!",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:43,from:"Grant Weston <grant@timeglass.ai>",day:8,
+ life:[501,493,191,26,259,28,6,39,0,0,2],rub:R("CHK",[2,1,4,3,2,4]),
+ fl:["nounsub"],iss:["The CTA is a stale pre-expanded tracking URL with a January 2026 timestamp inside the token, not a clean Calendly link.","Built on layout 2, so it ships with no unsubscribe link and no postal address.","Zero unsubscribes across 493 deliveries — the copy is landing well despite the build."]},
+{id:"a65",n:"Invite Teammates Value",s:"Timeglass: Understand Your Team's Time",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:35,from:"Timeglass <notifications@timeglasshq.com>",day:4,
+ life:[351,349,144,8,217,39,1,3,0,0,1],rub:R("ONB",[2,4,3,4,3,2]),
+ fl:[],iss:["Highest open rate in the sequence (41.3%) and nearly the lowest click rate (2.3%) — a 5.6% click-to-open. People open it and find nothing to do.","Points at a workspace settings page rather than at the invite flow itself."]},
+{id:"a66",n:"Summaries Value",s:"Timeglass: Summary of your team's work",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:36,from:"Timeglass <notifications@timeglasshq.com>",day:6,
+ life:[776,765,246,58,380,99,8,43,6,0,3],rub:R("ONB",[3,4,3,4,3,2]),
+ fl:["deliverability"],iss:["Second-best click rate in the sequence at 7.6%.","Overlaps conceptually with the Daily Digest, which the user has already been receiving for six days."]},
+{id:"a71",n:"Timesheets Value",s:"Timeglass: never fill out a timesheet again",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Live",t:37,from:"Timeglass <notifications@timeglasshq.com>",day:7,
+ life:[768,754,183,26,315,64,11,42,10,0,3],rub:R("ONB",[3,4,4,4,3,2]),
+ fl:["deliverability"],iss:["Lowest open rate in the sequence (24.3%) and 1.33% unsubscribe — sequence fatigue is visible by day 7.","The strongest value proposition in the product is on the least-opened email."]},
+{id:"a54",n:"Digest Value",s:"Timeglass: Set up your digests",cat:"Onboarding",camp:"Onboarding Success Campaign",cid:5,st:"Never sent",t:32,from:"Timeglass <notifications@timeglasshq.com>",day:5,
+ life:[0,0,0,0,0,0,0,0,0,0,0],rub:R("ONB",[3,4,3,4,3,3]),
+ fl:["never"],iss:["Zero sends since the campaign started in December 2025. The email is live, wired into the flow, and has never once fired.","Its precondition requires has_received_digest to both equal false AND exist. If the product never writes that attribute, the exists check fails and the branch is unreachable.","Everyone who passes this node continues to Summaries Value, so nobody is stuck — the email is simply invisible."]},
+
+/* ---- Transactional: invite flow (campaign 2) ---- */
+{id:"a2",n:"Invite",s:"You've been invited to Timeglass",cat:"Transactional",camp:"Workspace Invitee Flow",cid:2,st:"Live",t:3,from:"Timeglass <notifications@timeglasshq.com>",day:0,
+ life:[557,546,409,307,463,357,10,6,0,0,1],rub:R("INV",[5,4,5,3,4,4]),
+ fl:["best"],iss:["The best-performing email in the workspace: 74.9% human open, 56.2% human click, 75.1% click-to-open.","Zero unsubscribes across 546 deliveries.","Whatever else changes, this email should not."]},
+{id:"a6",n:"Reminder 1",s:"Your invitation to Timeglass is waiting",cat:"Transactional",camp:"Workspace Invitee Flow",cid:2,st:"Live",t:5,from:"Timeglass <notifications@timeglasshq.com>",day:2,
+ life:[225,214,95,36,127,51,6,1,1,0,5],rub:R("INV",[5,4,3,3,4,3]),
+ fl:["dup"],iss:["Template 5 is byte-identical to template 10 used by Reminder 2 — same 997 characters, same subject.","Still performs: 44.4% open, 16.8% click."]},
+{id:"a15",n:"Reminder 2",s:"Your invitation to Timeglass is waiting",cat:"Transactional",camp:"Workspace Invitee Flow",cid:2,st:"Live",t:10,from:"Timeglass <notifications@timeglasshq.com>",day:4,
+ life:[193,182,73,22,107,35,5,1,1,0,6],rub:R("INV",[5,4,2,3,4,3]),
+ fl:["dup"],iss:["Byte-identical to Reminder 1 and carries the identical subject line, so the inbox shows the same message twice.","Reminder 3 does add an expiry countdown — the escalation exists, it is just on the wrong email."]},
+{id:"a16",n:"Reminder 3",s:"Your invitation to Timeglass is waiting",cat:"Transactional",camp:"Workspace Invitee Flow",cid:2,st:"Live",t:11,from:"Timeglass <notifications@timeglasshq.com>",day:6,
+ life:[180,170,70,17,102,28,4,3,1,0,6],rub:R("INV",[5,4,3,3,5,3]),
+ fl:["dup"],iss:["Third consecutive send with the identical subject line to the two before it.","This is the only one with the expiry-countdown Liquid, which is the actual reason to send a third reminder — it should carry a subject that says so."]},
+{id:"a81",n:"Inviter Reminder 1",s:"{{customer.invitee_email}} has not accepted your invite yet",cat:"Transactional",camp:"Workspace Invitee Flow",cid:2,st:"Live",t:46,from:"Timeglass <notifications@timeglasshq.com>",day:2,
+ life:[100,100,23,1,54,14,0,0,0,0,0],rub:R("INVR",[2,4,2,3,4,2]),
+ fl:["dup"],iss:["1% human click rate across 100 deliveries.","Templates 46, 47 and 48 are byte-identical — 1,194 characters each, same subject, same link."]},
+{id:"a82",n:"Inviter Reminder 2",s:"{{customer.invitee_email}} has not accepted your invite yet",cat:"Transactional",camp:"Workspace Invitee Flow",cid:2,st:"Live",t:47,from:"Timeglass <notifications@timeglasshq.com>",day:4,
+ life:[80,80,27,2,41,13,0,0,0,0,0],rub:R("INVR",[2,4,2,3,4,2]),
+ fl:["dup"],iss:["Second identical send. 2.5% click."]},
+{id:"a83",n:"Inviter Reminder 3",s:"{{customer.invitee_email}} has not accepted your invite yet",cat:"Transactional",camp:"Workspace Invitee Flow",cid:2,st:"Live",t:48,from:"Timeglass <notifications@timeglasshq.com>",day:6,
+ life:[95,95,37,0,54,11,0,0,0,0,0],rub:R("INVR",[2,4,1,3,4,1]),
+ fl:["dup","lowuse"],iss:["Zero human clicks across 95 deliveries. Third identical send in six days.","38.9% of inviters open it and none act. The email has an audience and no job."]},
+{id:"tx3",n:"Workspace Invite Reminder",s:"Your Timeglass invitation is waiting",cat:"Transactional",camp:"API transactional",cid:null,st:"Live",t:12,from:"Timeglass <notifications@timeglasshq.com>",day:null,
+ life:[120,117,64,47,80,50,1,0,0,0,2],d90:[80,80,40,28,53,31,0,0,0,0,0],rub:R("TXINV",[5,3,4,3,5,4]),
+ fl:[],iss:["40.2% human click rate — second-best in the workspace, because the inviter fires it manually at a moment of intent.","Duplicates the purpose of the three automated invitee reminders in campaign 2, which perform far worse."]},
+{id:"tx4",n:"Workspace Invite Accept Confirmation",s:"{{invitee_name}} accepted invite to join {{workspace_name}}",cat:"Transactional",camp:"API transactional",cid:null,st:"Live",t:13,from:"Timeglass <notifications@timeglasshq.com>",day:null,
+ life:[336,336,148,32,166,32,0,0,0,0,0],d90:[215,215,74,22,85,24,0,0,0,0,0],rub:R("TXINV",[4,3,4,3,5,5]),
+ fl:[],iss:["100% delivery across 336 sends, zero bounces, zero failures. Cleanest sender record in the workspace.","Subject line carries two merge fields and a double space between them: '{{invitee_name}}  accepted invite'."]},
+
+/* ---- Product notifications ---- */
+{id:"tx6",n:"Daily Digest",s:"Timeglass: {{period_label}} Workspace Digest",cat:"Product notifications",camp:"API transactional",cid:null,st:"Live",t:20,from:"Timeglass <notifications@timeglasshq.com>",day:null,
+ life:[16631,16092,6360,269,8520,716,16,0,26,0,523],d90:[9353,9113,3476,131,4847,489,4,0,15,0,236],rub:R("DIG",[1,2,2,2,1,2]),
+ fl:["volume","lowuse"],iss:["45.6% of every email Timeglass has ever sent. Nothing else is close.","39.5% human open — genuinely good. 1.67% human click. Click-to-open is 4.2%, less than half the 10% floor.","Six thousand people a quarter open this email and do nothing. That is the single largest wasted intent in the program.","Subject line is identical on every send. It contains no number, no name and no reason to open beyond habit.","Sent as a transactional message with send_to_unsubscribed enabled and no subscription topic, so the only way out is a full unsubscribe from everything."]},
+{id:"tx7",n:"Weekly Digest",s:"Timeglass: {{period_label}} Workspace Digest",cat:"Product notifications",camp:"API transactional",cid:null,st:"Live",t:21,from:"Timeglass <notifications@timeglasshq.com>",day:null,
+ life:[3648,3531,1028,80,1499,175,3,0,4,0,114],d90:[1965,1920,574,26,857,116,0,0,1,0,45],rub:R("DIG",[1,2,2,2,1,3]),
+ fl:["lowuse"],iss:["Same shell template and the same subject line as the Daily Digest, so in the inbox the two are indistinguishable.","29.1% open, 2.27% click, 7.8% click-to-open — better than daily but still under the floor.","90-day click-to-open has fallen to 4.5%, roughly half its lifetime figure."]},
+{id:"tx8",n:"Project Updates Email",s:"{{trigger.subject}}",cat:"Product notifications",camp:"API transactional",cid:null,st:"Live",t:44,from:"Timeglass <notifications@timeglasshq.com>",day:null,
+ life:[123,123,88,2,88,3,0,0,0,0,0],rub:R("PROJ",[2,2,2,2,3,4]),
+ fl:[],iss:["71.5% human open — the highest open rate in the workspace, with only one machine open in 123 sends.","Almost no bot inflation, which means this audience is reading on real devices at a moment of genuine interest.","1.6% click. A 71% open rate is being converted into nothing."]},
+
+/* ---- Lifecycle: loops ---- */
+{id:"a98",n:"Nurture 1",s:"Quick check-in on Timeglass",cat:"Lifecycle",camp:"Nurture Loop",cid:7,st:"Drafts only",t:55,from:"Grant Weston <grant@timeglass.ai>",day:null,
+ life:[58,56,16,1,27,2,0,16,0,0,2],rub:R("LOOP",[3,1,4,3,3,2]),
+ fl:["never","nounsub","deliverability"],iss:["Failure rate 27.6% (16 of 58) before the campaign stopped sending altogether.","Layout 2: no unsubscribe link, no postal address, on a marketing nudge."]},
+{id:"a99",n:"Nurture 2",s:"Ready to get started?",cat:"Lifecycle",camp:"Nurture Loop",cid:7,st:"Drafts only",t:56,from:"Grant Weston <grant@timeglass.ai>",day:null,
+ life:[70,69,10,4,26,7,0,22,0,0,1],rub:R("LOOP",[3,1,4,3,3,2]),
+ fl:["never","nounsub","deliverability"],iss:["Failure rate 31.4% (22 of 70).","14.5% open — the weakest of the three variants."]},
+{id:"a100",n:"Nurture 3",s:"Your work is still invisible",cat:"Lifecycle",camp:"Nurture Loop",cid:7,st:"Drafts only",t:57,from:"Grant Weston <grant@timeglass.ai>",day:null,
+ life:[69,66,13,1,24,2,0,15,0,0,3],rub:R("LOOP",[3,1,4,3,3,2]),
+ fl:["never","nounsub","deliverability"],iss:["Failure rate 21.7% (15 of 69).","Sharpest subject line of the three variants and it never got a fair test."]},
+{id:"a108",n:"Engage 1",s:"How's Timeglass working for you?",cat:"Lifecycle",camp:"Engagement Loop",cid:8,st:"Drafts only",t:61,from:"Grant Weston <grant@timeglass.ai>",day:null,
+ life:[42,40,14,2,24,2,1,1,0,0,1],rub:R("LOOP",[3,1,4,3,3,2]),
+ fl:["never","nounsub"],iss:["Campaign has produced 613 drafted messages and 148 actual sends since January 2026."]},
+{id:"a109",n:"Engage 2",s:"Are you getting the most out of Timeglass?",cat:"Lifecycle",camp:"Engagement Loop",cid:8,st:"Drafts only",t:62,from:"Grant Weston <grant@timeglass.ai>",day:null,
+ life:[56,52,17,6,27,6,1,3,0,0,3],rub:R("LOOP",[3,1,5,3,3,2]),
+ fl:["never","nounsub"],iss:["11.5% click rate on 52 deliveries — the best-performing lifecycle email, and it is switched off.","Names three specific features including the ChatGPT/Claude integration. Concrete beats generic."]},
+{id:"a110",n:"Engage 3",s:"Quick question about your Timeglass experience",cat:"Lifecycle",camp:"Engagement Loop",cid:8,st:"Drafts only",t:63,from:"Grant Weston <grant@timeglass.ai>",day:null,
+ life:[50,45,17,3,26,3,1,2,0,0,4],rub:R("LOOP",[3,1,4,3,3,2]),
+ fl:["never","nounsub"],iss:["A two-question feedback ask with no form — replies only. Fine for 50 sends, unworkable at scale."]},
+
+/* ---- Lifecycle: billing ---- */
+{id:"a155",n:"Trial ending soon, no payment method",s:"Your Timeglass trial ends soon",cat:"Lifecycle",camp:"Trial ending soon",cid:11,st:"Live",t:87,from:"Timeglass Team <notifications@timeglasshq.com>",day:null,
+ life:[102,100,34,2,56,7,2,4,1,0,0],d90:[102,100,34,2,56,7,2,4,1,0,0],rub:R("BILL",[5,5,5,3,4,5]),
+ fl:[],iss:["34% open, 2% click. For a revenue-critical message that click rate is the thing to fix, not the open rate.","Carries an unsubscribe link. A user who takes it will not be told their workspace is about to pause."]},
+{id:"a159",n:"Trial ended — payment method required",s:"Payment method required for your Timeglass workspace",cat:"Lifecycle",camp:"Trial ended",cid:12,st:"Live",t:90,from:"Timeglass Team <notifications@timeglasshq.com>",day:null,
+ life:[90,89,32,3,57,10,1,1,0,0,0],d90:[90,89,32,3,57,10,1,1,0,0,0],rub:R("BILL",[5,5,5,3,5,5]),
+ fl:[],iss:["Three branches on subscription_status so the same email reads correctly for trial-ended, active and failed-payment cases. Best conditional logic in the workspace.","3.4% click on a message whose only purpose is to get a card entered."]},
+{id:"a160",n:"Payment method reminder",s:"Reminder: add or update your Timeglass payment method",cat:"Lifecycle",camp:"Billing grace reminder",cid:13,st:"Live",t:91,from:"Timeglass Team <notifications@timeglasshq.com>",day:null,
+ life:[78,76,16,1,36,4,2,1,0,0,0],d90:[78,76,16,1,36,4,2,1,0,0,0],rub:R("BILL",[5,5,5,3,5,5]),
+ fl:["lowuse"],iss:["21.1% open — the lowest of the four billing emails, on the message that is the last cheap chance to save the account.","1.3% click."]},
+{id:"a161",n:"Time tracking paused",s:"Time tracking is paused for your workspace",cat:"Lifecycle",camp:"Time tracking paused",cid:14,st:"Live",t:92,from:"Timeglass Team <notifications@timeglasshq.com>",day:null,
+ life:[78,76,20,0,32,2,2,4,0,0,0],d90:[78,76,20,0,32,2,2,4,0,0,0],rub:R("BILL",[5,5,5,3,4,5]),
+ fl:["lowuse"],iss:["Zero human clicks across 76 deliveries of a message announcing that the product has stopped working.","26.3% open. Either the subject is not landing as urgent, or the people receiving it have already gone."]},
+/* ---- Marketing: cold outbound (campaign 10) ---- */
+{id:"a119",n:"Version A",s:"Where is your time going?",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:67,from:"Grant Weston <grant@timeglassmail.com>",seq:1,day:null,
+ life:[352,335,98,62,154,62,17,7,0,0,0],rub:R("COLD1",[4,1,2,3,1,3]),
+ fl:["nounsub","deliverability"],iss:["29.3% open, 18.5% click — this first touch works.","Bounce rate 4.8%, already above the 2% ceiling for cold sending.","No unsubscribe link and no postal address on unsolicited commercial email."]},
+{id:"a120",n:"Version B",s:"Understand your team's time",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:68,from:"Grant Weston <grant@timeglassmail.com>",seq:1,day:null,
+ life:[296,285,91,55,126,56,11,3,0,1,0],rub:R("COLD1",[4,1,2,3,1,3]),
+ fl:["nounsub","dup","deliverability"],iss:["31.9% open, 19.3% click. Marginally beats variant A.","The two variants differ by three characters of body copy. This test cannot produce a usable finding about content."]},
+{id:"a124",n:"Email 3",s:"Where does 30-40% of your week go?",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:71,from:"Grant Weston <grant@timeglassmail.com>",seq:3,day:null,
+ life:[474,454,49,1,145,73,9,88,4,0,11],rub:R("COLD2",[3,2,3,3,1,1]),
+ fl:["deliverability"],iss:["Human clicks collapse from 55–62 on emails 1–2 to a single click here. Human opens fall from ~30% to 10.8%.","Failure rate 18.6% (88 of 474).","Of 73 recorded clicks, 72 are machine. The tracked-click number looks healthy and means nothing."]},
+{id:"a126",n:"Email 4",s:"Focus time vs. everything else",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:72,from:"Grant Weston <grant@timeglassmail.com>",seq:4,day:null,
+ life:[540,508,50,2,182,87,18,1,5,0,14],rub:R("COLD2",[3,2,3,3,1,1]),fl:["deliverability"],iss:["9.8% human open. 0.4% human click."]},
+{id:"a128",n:"Email 5",s:"How does your team's time break down?",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:73,from:"Grant Weston <grant@timeglassmail.com>",seq:5,day:null,
+ life:[482,458,47,1,152,69,14,0,1,0,10],rub:R("COLD2",[3,2,3,3,1,1]),fl:["deliverability"],iss:["Third consecutive email built on the same 'where does your time go' question as emails 3 and 4."]},
+{id:"a130",n:"Email 6",s:"Three things teams use Timeglass for",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:74,from:"Grant Weston <grant@timeglassmail.com>",seq:6,day:null,
+ life:[596,565,60,0,180,89,15,1,3,0,16],rub:R("COLD2",[3,2,3,3,1,1]),fl:["deliverability"],iss:["Zero human clicks across 565 deliveries."]},
+{id:"a132",n:"Email 7",s:"Still tracking time manually?",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:75,from:"Grant Weston <grant@timeglassmail.com>",seq:7,day:null,
+ life:[602,577,51,0,176,96,8,0,1,0,17],rub:R("COLD2",[3,2,3,3,1,1]),fl:["deliverability"],iss:["Zero human clicks across 577 deliveries."]},
+{id:"a135",n:"Email 8",s:"The meeting tax",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:77,from:"Grant Weston <grant@timeglassmail.com>",seq:8,day:null,
+ life:[602,574,58,1,203,97,10,0,2,0,18],rub:R("COLD2",[3,2,4,3,1,1]),fl:["deliverability"],iss:["Best subject line in the sequence. One human click."]},
+{id:"a137",n:"Email 9",s:"What if you didn't have to guess?",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:78,from:"Grant Weston <grant@timeglassmail.com>",seq:9,day:null,
+ life:[600,572,65,0,197,96,8,0,3,0,20],rub:R("COLD2",[3,2,3,3,1,1]),fl:["deliverability"],iss:["Zero human clicks across 572 deliveries."]},
+{id:"a139",n:"Email 10",s:"Your team's time is your biggest expense",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:79,from:"Grant Weston <grant@timeglassmail.com>",seq:10,day:null,
+ life:[598,555,45,1,164,93,21,0,1,0,22],rub:R("COLD2",[3,2,3,3,1,1]),fl:["deliverability"],iss:["Bounce rate 3.5% and climbing with each subsequent send."]},
+{id:"a141",n:"Email 11",s:"A question for you",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:80,from:"Grant Weston <grant@timeglassmail.com>",seq:11,day:null,
+ life:[597,547,52,2,182,96,26,0,3,0,24],rub:R("COLD2",[3,2,3,3,1,1]),fl:["deliverability"],iss:["Bounce rate 4.4%.","Subject promises a question; the body asks nothing."]},
+{id:"a143",n:"Email 12",s:"Zero behavior change required",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:81,from:"Grant Weston <grant@timeglassmail.com>",seq:12,day:null,
+ life:[594,536,38,2,158,102,29,0,0,1,29],rub:R("COLD2",[3,2,3,3,1,1]),fl:["dup","deliverability"],iss:["Bounce rate 4.9%. Spam complaint recorded.","Shares its subject line with Email 13, sent 14 days later."]},
+{id:"a145",n:"Email 13",s:"Zero behavior change required",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:82,from:"Grant Weston <grant@timeglassmail.com>",seq:13,day:null,
+ life:[594,525,30,2,146,101,37,0,1,0,32],rub:R("COLD2",[2,2,3,3,1,1]),fl:["dup","deliverability"],iss:["Duplicate subject line with Email 12. Different body, same inbox headline, two weeks apart.","Bounce rate 6.2% — three times the acceptable ceiling.","5.7% human open."]},
+{id:"a147",n:"Email 14",s:"What our customers wish they knew sooner",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:83,from:"Grant Weston <grant@timeglassmail.com>",seq:14,day:null,
+ life:[593,531,21,2,150,104,29,0,1,0,33],rub:R("COLD2",[2,2,3,3,1,1]),fl:["dup","deliverability"],iss:["Template 83 is byte-identical to template 84 used by Email 15.","4.0% human open. Bounce rate 4.9%."]},
+{id:"a149",n:"Email 15",s:"What our customers wish they knew sooner",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:84,from:"Grant Weston <grant@timeglassmail.com>",seq:15,day:null,
+ life:[416,364,10,0,95,68,25,0,1,0,27],rub:R("COLD2",[1,2,1,3,1,1]),fl:["dup","never","deliverability"],iss:["Byte-identical duplicate of Email 14 — same 426-character body, same subject, sent 14 days later. Both actions are even named 'Email 14' in the workspace.","2.7% human open, zero human clicks, 6.0% bounce.","This is the clearest single defect in the program: 364 people received the same email twice."]},
+{id:"a151",n:"Email 16",s:"One more thing",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:85,from:"Grant Weston <grant@timeglassmail.com>",seq:16,day:null,
+ life:[345,310,7,2,79,56,15,0,0,0,20],rub:R("COLD2",[2,2,3,3,1,1]),fl:["deliverability"],iss:["2.3% human open. Bounce rate 4.3%."]},
+{id:"a153",n:"Email 17",s:"Open invite",cat:"Marketing",camp:"RB2B Lead Campaign",cid:10,st:"Live",t:86,from:"Grant Weston <grant@timeglassmail.com>",seq:17,day:null,
+ life:[179,161,1,0,43,35,9,0,0,0,9],rub:R("COLD2",[2,2,3,3,1,1]),fl:["deliverability","lowuse"],iss:["One human open in 161 deliveries — 0.6%. Zero human clicks. All 35 recorded clicks are machine.","5.0% bounce. By this point the sequence is mailing an audience that is functionally not there."]},
+
+/* ---- Marketing: paid social (campaigns 15 & 16) ---- */
+{id:"a164",n:"Email 1 — Reintroduction",s:"Your timesheet, written for you",cat:"Marketing paused",camp:"Paid Social Lead Nurture v1",cid:15,st:"Sunsetting",t:93,from:"Grant Weston <grant@timeglassmail.com>",seq:1,day:null,
+ life:[49,46,3,0,15,0,3,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),
+ fl:["listquality"],iss:["6.5% human open against 32.6% total opens — nearly every open is a machine.","Zero human clicks. 6.1% bounce on a 49-send list.","The best-built email in the workspace, sent to the worst list in the workspace."]},
+{id:"a166",n:"Email 2 — How it works",s:"How Timeglass writes a timesheet",cat:"Marketing paused",camp:"Paid Social Lead Nurture v1",cid:15,st:"Sunsetting",t:94,from:"Grant Weston <grant@timeglassmail.com>",seq:2,day:null,
+ life:[49,47,3,2,16,2,2,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["listquality"],iss:["6.4% human open, 4.3% human click."]},
+{id:"a168",n:"Email 3 — Privacy",s:"What Timeglass can (and can't) see",cat:"Marketing paused",camp:"Paid Social Lead Nurture v1",cid:15,st:"Sunsetting",t:95,from:"Grant Weston <grant@timeglassmail.com>",seq:3,day:null,
+ life:[48,46,3,2,14,2,2,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["listquality"],iss:["Addresses the objection a screen-recording product actually faces. Correct email to send third."]},
+{id:"a170",n:"Email 4 — Differentiation",s:"Timesheets fail on attribution long before they fail on hours",cat:"Marketing paused",camp:"Paid Social Lead Nurture v1",cid:15,st:"Sunsetting",t:96,from:"Grant Weston <grant@timeglassmail.com>",seq:4,day:null,
+ life:[48,46,1,0,12,0,2,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["listquality"],iss:["2.2% human open. The sharpest positioning line in the workspace, read by one person."]},
+{id:"a172",n:"Email 5 — Trial or demo",s:"The fastest way to judge this is your own week",cat:"Marketing paused",camp:"Paid Social Lead Nurture v1",cid:15,st:"Sunsetting",t:97,from:"Grant Weston <grant@timeglassmail.com>",seq:5,day:null,
+ life:[47,44,0,0,12,9,3,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["listquality"],iss:["Zero human opens across 44 deliveries. All 9 clicks are machine.","Carries both a sign-up and a book-a-call CTA, correctly UTM-tagged."]},
+{id:"a175",n:"Email 1 (HTML arm)",s:"Your timesheet, written for you",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:101,from:"Grant Weston <grant@timeglassmail.com>",seq:1,day:null,
+ life:[5,5,0,0,0,0,0,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["thin"],iss:["Five sends. Not enough data to read."]},
+{id:"a177",n:"Email 2 (HTML arm)",s:"How Timeglass writes a timesheet",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:102,from:"Grant Weston <grant@timeglassmail.com>",seq:2,day:null,
+ life:[2,2,0,0,0,0,0,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["thin"],iss:["Two sends."]},
+{id:"a179",n:"Email 3 (HTML arm)",s:"What Timeglass can (and can't) see",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:98,from:"Grant Weston <grant@timeglassmail.com>",seq:3,day:null,
+ life:[1,1,0,0,0,0,0,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["thin"],iss:["One send."]},
+{id:"a181",n:"Email 4 (HTML arm)",s:"Timesheets fail on attribution long before they fail on hours",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:100,from:"Grant Weston <grant@timeglassmail.com>",seq:4,day:null,
+ life:[1,1,0,0,0,0,0,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["thin"],iss:["One send."]},
+{id:"a183",n:"Email 5 (HTML arm)",s:"The fastest way to judge this is your own week",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:99,from:"Grant Weston <grant@timeglassmail.com>",seq:5,day:null,
+ life:[0,0,0,0,0,0,0,0,0,0,0],rub:R("PSOC",[4,5,5,5,3,4]),fl:["never","thin"],iss:["Zero sends. Nobody has reached the end of this arm yet."]},
+{id:"a186",n:"Email 1 (plain arm)",s:"Your timesheet, written for you",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:103,from:"Grant Weston <grant@timeglassmail.com>",seq:1,day:null,
+ life:[7,7,0,0,0,0,0,0,0,0,0],rub:R("PSOCP",[4,4,5,4,3,4]),fl:["thin"],iss:["Seven sends."]},
+{id:"a188",n:"Email 2 (plain arm)",s:"How Timeglass writes a timesheet",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:104,from:"Grant Weston <grant@timeglassmail.com>",seq:2,day:null,
+ life:[4,4,0,0,0,0,0,0,0,0,0],rub:R("PSOCP",[4,4,5,4,3,4]),fl:["thin"],iss:["Four sends."]},
+{id:"a190",n:"Email 3 (plain arm)",s:"What Timeglass can (and can't) see",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:105,from:"Grant Weston <grant@timeglassmail.com>",seq:3,day:null,
+ life:[2,2,0,0,0,0,0,0,0,0,0],rub:R("PSOCP",[4,4,5,4,3,4]),fl:["thin"],iss:["Two sends."]},
+{id:"a192",n:"Email 4 (plain arm)",s:"Timesheets fail on attribution long before they fail on hours",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:106,from:"Grant Weston <grant@timeglassmail.com>",seq:4,day:null,
+ life:[1,0,0,0,0,0,1,0,0,0,0],rub:R("PSOCP",[4,4,5,4,3,4]),fl:["thin"],iss:["One send, one bounce."]},
+{id:"a194",n:"Email 5 (plain arm)",s:"The fastest way to judge this is your own week",cat:"Marketing",camp:"Paid Social — Plain format test",cid:16,st:"Live",t:107,from:"Grant Weston <grant@timeglassmail.com>",seq:5,day:null,
+ life:[0,0,0,0,0,0,0,0,0,0,0],rub:R("PSOCP",[4,4,5,4,3,4]),fl:["never","thin"],iss:["Zero sends."]},
+
+/* ---- Product announcements ---- */
+{id:"nl1",n:"Desktop v2.0.4 — Legacy 1.x",s:"Desktop v2.0.4 update — Legacy 1.x — 2026-08-03",cat:"Announcements",camp:"Broadcast",cid:null,st:"Sent once",t:null,from:"Timeglass",day:null,
+ life:[98,96,36,6,66,9,1,0,0,0,1],d90:[98,96,36,6,66,9,1,0,0,0,1],rub:R("NL",[4,3,4,3,2,5]),
+ fl:[],iss:["37.5% open, 6.3% click — the best-performing marketing-shaped send in the workspace.","Correctly split from the native-app cohort rather than blasted to everyone.","The internal segment name is used verbatim as the subject line: 'Desktop v2.0.4 update — Legacy 1.x — 2026-08-03'. The recipient sees the operations label."]},
+{id:"nl2",n:"Desktop v2.0.4 — Native pre-2.0.4",s:"Desktop v2.0.4 update — Native pre-2.0.4 — 2026-08-03",cat:"Announcements",camp:"Broadcast",cid:null,st:"Sent once",t:null,from:"Timeglass",day:null,
+ life:[27,27,12,1,16,4,0,0,0,0,0],d90:[27,27,12,1,16,4,0,0,0,0,0],rub:R("NL",[4,3,4,3,2,5]),
+ fl:["thin"],iss:["44.4% open on 27 sends. Highest open rate of any broadcast, smallest audience.","Same subject-line problem: the segment name is shipped as the headline."]},
+
+/* ---- Dormant / draft transactional ---- */
+{id:"tx10",n:"RB2B Cold Outreach",s:"{{trigger.subject}}",cat:"Marketing paused",camp:"API transactional",cid:null,st:"Drafts only",t:65,from:"Grant Weston <grant@timeglassmail.com>",day:null,
+ life:[0,0,0,0,0,0,0,0,0,0,0],rub:R("COLD1",[3,1,2,3,1,2]),
+ fl:["never","nounsub"],iss:["38 messages drafted, zero sent. queue_drafts is enabled, so every message waits for manual approval that never comes.","Duplicates the purpose of campaign 10, which sends the same kind of mail automatically.","send_to_unsubscribed is enabled on a cold outreach message."]},
+{id:"tx12",n:"Agency Guide",s:"Your Timeglass Guide",cat:"Marketing paused",camp:"API transactional",cid:null,st:"Draft",t:76,from:"Grant Weston <grant@timeglassmail.com>",day:null,
+ life:[26,12,7,2,7,3,10,0,0,0,4],rub:R("GUIDE",[4,2,4,3,3,4]),
+ fl:["deliverability","nounsub","listquality"],iss:["10 bounces in 26 sends — a 38.5% bounce rate. Only 12 of 26 were delivered.","Whatever form feeds this lead magnet is accepting addresses that do not exist. Every one of those bounces is charged against the sending domain.","No unsubscribe link and no postal address on a marketing lead-magnet email.","Message state is 'draft' but it has sent 26 times, so it is live in practice."]}
+];
+const CATS=["Onboarding","Transactional","Product notifications","Lifecycle","Marketing","Marketing paused","Announcements"];
+const CATCOLOR={"Onboarding":"var(--s5)","Transactional":"var(--s2)","Product notifications":"var(--s4)","Lifecycle":"var(--s1)","Marketing":"var(--s3)","Marketing paused":"var(--dead)","Announcements":"var(--s2)"};
+const CATNOTE={
+ "Onboarding":"Nine emails over eight days, triggered when a Clerk user id appears on the profile. No conversion goal is configured, so Customer.io reports zero conversions for the whole campaign — the question 'does onboarding drive activation' cannot be answered from this workspace today.",
+ "Transactional":"The invite flow plus two API-triggered invite messages. Consistently the strongest performing category, because every message follows an action the recipient just took.",
+ "Product notifications":"The digests. Nearly half of all sends. Opened readily and clicked almost never.",
+ "Lifecycle":"Two re-engagement loops that stopped sending, and four billing messages that are the best-built emails in the workspace.",
+ "Marketing":"Cold outbound sourced from RB2B identification, plus a live paid-social format test. This category carries the program's deliverability risk.",
+ "Marketing paused":"The sunsetting paid-social sequence, a queued cold-outreach message that never sends, and a lead-magnet email with a 38% bounce rate.",
+ "Announcements":"Two segmented broadcasts for one desktop release, August 2026. The only broadcasts ever sent from this workspace."};
+
+const BENCH=[
+ {m:"Open rate (human)",t:"Marketing / nurture",lo:19,hi:25,val:null,key:"open_mkt",read:"Cold sequence lands at 9.8% lifetime and 5.3% over the last 90 days — under half the floor, and falling."},
+ {m:"Open rate (human)",t:"Automated / transactional",lo:30,hi:34,val:null,key:"open_txn",read:"Transactional sits at 52.9% and product notifications at 39.5%. Both comfortably clear the range."},
+ {m:"Open rate (human)",t:"Welcome / first onboarding email",lo:52,hi:83,val:null,key:"open_wel",read:"Welcome from the CEO opens at 39.6% — below even the conservative end of the published welcome range."},
+ {m:"Click rate (human)",t:"Marketing / nurture",lo:2.3,hi:4.0,val:null,key:"ctr_mkt",read:"Cold sequence is at 1.7% lifetime, 0.3% over 90 days."},
+ {m:"Click rate (human)",t:"Automated / transactional",lo:5.0,hi:7.4,val:null,key:"ctr_txn",read:"Invite flow clears it at 27.8%. Digests do not, at 1.7%."},
+ {m:"Click-to-open",t:"All B2B SaaS",lo:10,hi:15,val:null,key:"ctor_all",read:"Program-wide 12.0%, inside the range. The average hides a 75% invite email and a 4.2% digest."},
+ {m:"Unsubscribe rate",t:"All",lo:0.27,hi:0.50,val:null,key:"unsub",read:"Program-wide 0.24%. Onboarding alone runs at 1.01% — twice the acceptable ceiling."},
+ {m:"Bounce rate",t:"Opted-in mail",lo:0.4,hi:2.5,val:null,key:"bounce",read:"Program-wide 1.1%. The cold campaign is at 3.6% and the Agency Guide at 38.5%."},
+ {m:"Spam complaint rate",t:"Hard ceiling — Google & Yahoo",lo:0.10,hi:0.30,val:null,key:"spam",read:"Program-wide 0.006% (2 complaints in 36,487 sends). Not currently a problem — but bounces, not complaints, are what is eroding the domain."},
+ {m:"Failure rate",t:"Platform ceiling",lo:0,hi:2.0,val:null,key:"fail",read:"Program-wide 1.2%, but onboarding runs 5.4% and one onboarding email fails 17.4% of the time."}
+];
+const BENCHSRC='Ranges reconciled across: Brevo 2026 Marketing Orchestration Benchmark (marketing 20.73% open / 2.27% CTR; automated &amp; transactional 30.63% open / 7.39% CTR); Mailchimp-derived cross-industry aggregates (19.21% open, 2.44% CTR, 2.48% bounce, 0.7% soft / 0.4% hard bounce); B2B SaaS cuts reported by Visionary Marketing and Powered by Search for 2026 (24.7% open, 15.0% CTOR, 0.41% unsubscribe); GetResponse 2024 welcome-email benchmarks drawn from 4.4&nbsp;billion messages (83.63% welcome open) alongside the more conservative 52&ndash;68% B2B SaaS welcome figure; Instantly and Woodpecker 2026 cold-email benchmarks (3.43% reply, 5.1% average bounce, &lt;2% &ldquo;good&rdquo;); and the Google &amp; Yahoo bulk sender requirements in force since February 2024 (spam complaints below 0.10%, never above 0.30%). <b>Sources disagree substantially on open rate</b> &mdash; the 19% and 45% figures in circulation describe the same emails, measured before and after Apple Mail Privacy Protection began pre-opening messages. Every Timeglass figure here is human-only, so it should be read against the lower end of each published range. These figures were gathered from search-result summaries; this environment blocks direct web fetching, so the primary pages were not opened and the numbers are not individually source-verified.';
+
+const RECS=[
+ {tier:"quick",t:"Delete RB2B Email 15 — it is a byte-identical duplicate of Email 14",why:"Templates 83 and 84 are the same 426 characters with the same subject line, and both actions are even named 'Email 14' in the workspace. 364 people have already received the same email twice, fourteen days apart, on a cold list that is already bouncing at 6%.",own:"Lifecycle owner",eff:"15 min",imp:"Removes ~400 wasted sends/quarter and one clear spam signal",conf:"High"},
+ {tier:"quick",t:"Fix the stale tracking URL in the day-8 onboarding check-in",why:"The Calendly CTA in template 43 is a pre-expanded marketing.timeglass.ai click-tracking URL with a January 2026 timestamp baked into its token, not a link to Calendly. 493 people have received it.",own:"Whoever owns lifecycle templates",eff:"15 min",imp:"Restores the only CTA on a 38.7%-open email",conf:"High"},
+ {tier:"quick",t:"Give the three invitee reminders three different subject lines",why:"Reminders 1, 2 and 3 all read 'Your invitation to Timeglass is waiting', and templates 5 and 10 are byte-identical. Reminder 3 already contains an expiry countdown — that is the escalation, it just is not in the subject.",own:"Lifecycle owner",eff:"30 min",imp:"Three chances to convert instead of one repeated three times",conf:"High"},
+ {tier:"quick",t:"Turn off inviter reminders 2 and 3",why:"Templates 46, 47 and 48 are byte-identical. Across all three sends there have been 3 human clicks from 275 deliveries, and reminder 3 has produced zero. Keep the first, drop the rest.",own:"Lifecycle owner",eff:"15 min",imp:"Removes 175 pointless sends per cycle",conf:"High"},
+ {tier:"quick",t:"Fix or delete the Agency Guide lead-magnet email",why:"10 bounces in 26 sends — 38.5%. Whatever form feeds it is accepting addresses that do not exist, and every bounce is charged against the sending domain. Add validation at the form, or stop sending until it is fixed.",own:"Marketing",eff:"1 hour",imp:"Removes the single worst bounce source in the workspace",conf:"High"},
+ {tier:"quick",t:"Rename the two broadcast subject lines",why:"Both August broadcasts shipped with the internal segment name as the subject: 'Desktop v2.0.4 update — Legacy 1.x — 2026-08-03'. Recipients saw the operations label. These performed well anyway; they would perform better with a written subject.",own:"Marketing",eff:"15 min",imp:"Applies to every future release broadcast",conf:"High"},
+ {tier:"quick",t:"Fix the duplicate subject on RB2B emails 12 and 13",why:"'Zero behavior change required' is used twice, fourteen days apart, on different bodies.",own:"Marketing",eff:"15 min",imp:"Removes a repeat-headline signal on the riskiest campaign",conf:"High"},
+ {tier:"quick",t:"Add layout 1 to the eleven templates that ship without an unsubscribe link",why:"Templates 43, 55, 56, 57, 61, 62, 63, 65, 67, 68 and 76 use layout 2 or no layout. Layout 2 carries no footer, so these emails go out with no unsubscribe link and no postal address. Several are marketing or cold outreach, where that is a CAN-SPAM exposure rather than a style question.",own:"Whoever owns brand and templates",eff:"1 hour",imp:"Closes the compliance gap across 11 templates",conf:"High"},
+ {tier:"medium",t:"Put a number in the digest subject line",why:"The Daily Digest is 45.6% of all sends. It opens at 39.5% and converts 4.2% of those opens into a click — under half the 10% floor. The subject is identical on every send and contains no information. This is the largest single pool of wasted attention in the program.",own:"Product + lifecycle",eff:"Half a sprint",imp:"A 4.2% → 10% click-to-open would add roughly 350 engaged sessions per quarter",conf:"Medium"},
+ {tier:"medium",t:"Set a conversion goal on the onboarding campaign",why:"conversion is false and conversion_event_name is null, so Customer.io reports zero conversions across 934 journeys. Until a canonical activation event is wired up, no one can answer whether onboarding works — including the phase-2 brief that depends on the answer.",own:"Product",eff:"Half a sprint, once activation is defined",imp:"Makes the entire onboarding sequence measurable",conf:"High"},
+ {tier:"medium",t:"Apply the existing frequency cap to every automation",why:"A cap exists — one email per seven days — and is enabled on exactly one of eleven automations. A new signup currently receives an onboarding email and a daily digest every day for their first week: 14 emails in 7 days, none of them capped.",own:"Lifecycle owner",eff:"A day, plus a decision on the right ceiling",imp:"Directly addresses the 1.01% onboarding unsubscribe rate",conf:"High"},
+ {tier:"medium",t:"Investigate the 5.4% onboarding failure rate",why:"252 of 4,631 onboarding sends failed outright — more than double the 2% concern line. The Download Desktop App email fails 17.4% of the time. These are failures, not bounces, so the cause is upstream of the recipient.",own:"Lifecycle owner + engineering",eff:"A day to diagnose",imp:"One in eighteen onboarding emails currently never leaves",conf:"High"},
+ {tier:"medium",t:"Fix or delete the Digest Value onboarding email",why:"Zero sends since December 2025. Its precondition requires has_received_digest to both equal false and exist; if the product never writes that attribute the branch is unreachable. Either write the attribute or remove the node.",own:"Product + lifecycle",eff:"Half a day",imp:"Recovers a designed step in the activation sequence",conf:"High"},
+ {tier:"medium",t:"Decide what the Nurture and Engagement loops are for, then switch them on or delete them",why:"Between them they have produced 3,262 drafted messages and 345 actual sends. They have been in this state since January 2026. Engage 2 has the best click rate of any lifecycle email at 11.5% and is switched off.",own:"Lifecycle owner",eff:"A day",imp:"Either recovers a working retention channel or removes 3,262 phantom records",conf:"High"},
+ {tier:"medium",t:"Give the billing sequence a click, not just an open",why:"Four billing emails, best-built in the workspace, and between them 6 human clicks from 341 deliveries. 'Time tracking is paused' has zero clicks from 76 deliveries — a message announcing the product has stopped working.",own:"Product + billing",eff:"Half a sprint",imp:"These are the highest-value clicks in the program",conf:"Medium"},
+ {tier:"medium",t:"Consolidate sending onto one domain",why:"Ten sender identities across timeglass.ai, timeglasshq.com and timeglassmail.com. Cold outbound runs from timeglassmail.com at 3.6% bounce; product mail runs from timeglasshq.com. That split protects the product domain, which is sensible — but three domains means three reputations, and nobody is currently measuring any of them.",own:"Marketing + engineering",eff:"A sprint",imp:"Prerequisite for any deliverability work",conf:"Medium"},
+ {tier:"medium",t:"Add UTM tagging to everything except the paid-social sequence",why:"The paid-social emails tag every link correctly (utm_campaign=email_1 through email_5). Nothing else in the workspace tags anything, so no email-driven session can be attributed in GA.",own:"Marketing",eff:"A sprint",imp:"Makes email-to-web attribution possible at all",conf:"High"},
+ {tier:"struct",t:"Stop the RB2B cold sequence after email 2 and rebuild the rest",why:"Emails 1 and 2 work: 30% open, 19% click. From email 3 onward human clicks collapse to zero or one per send while bounces climb from 4.8% to 6.2% and suppressions from 0 to 33. The sequence is mailing 17 times into an audience that stopped existing after the second touch, and charging every bounce to the sending domain.",own:"Marketing",eff:"Phase 2",imp:"~7,800 of 8,460 sends in this campaign produce 16 human clicks between them",conf:"High"},
+ {tier:"struct",t:"Introduce subscription topics",why:"There are none. Every email in the workspace is an all-or-nothing subscription, so a user who wants fewer digests has to unsubscribe from onboarding, billing and product announcements too. Digests are sent as transactional with send_to_unsubscribed enabled, which routes around the problem rather than solving it.",own:"Lifecycle owner",eff:"Phase 2",imp:"Structural prerequisite for reducing the unsubscribe rate",conf:"High"},
+ {tier:"struct",t:"Reconcile the three visual systems into one",why:"Three accent colours are live: the onboarding cards use rgb(183,142,64), the CEO welcome uses #6a78d1 and #00a4bd with two unresolved 'HubSpot-ish' comments still in the CSS, and only the paid-social templates use the documented 2026 palette — Still White #FAF8F4, Time Dark #0C1B1D, Deep Focus #243E41, Sand Gold #DA9944 — which is also what the marketing site uses.",own:"Brand owner",eff:"Phase 2",imp:"The palette already exists and is documented in template 93; this is adoption, not design",conf:"High"},
+ {tier:"struct",t:"Make the invite email the model for the program",why:"'You've been invited to Timeglass' opens at 74.9%, clicks at 56.2%, converts half of everyone who enters the journey, and has produced zero unsubscribes in 546 deliveries. One action, above the fold, following something the recipient just did. Nothing else in the workspace is built that way.",own:"Product & marketing",eff:"Phase 2",imp:"Sets the standard the redesign should be measured against",conf:"High"}
+];
+
+const CADENCE=[
+ {row:"Onboarding",color:"var(--s5)",items:[{d:0,l:"W",n:"Welcome from the CEO"},{d:1,l:"1",n:"Finish Setup"},{d:2,l:"2",n:"Download Desktop App"},{d:3,l:"3",n:"See What's Going On"},{d:4,l:"4",n:"Understand Your Team's Time"},{d:5,l:"×",n:"Set up your digests — never fires",dead:true},{d:6,l:"5",n:"Summary of your team's work"},{d:7,l:"6",n:"Never fill out a timesheet again"},{d:8,l:"7",n:"Happy to support in any way I can"}]},
+ {row:"Daily Digest",color:"var(--s2)",items:[1,2,3,4,5,6,7,8,9,10,11,12,13,14].map(d=>({d,l:"D",n:"Workspace Digest"}))},
+ {row:"Weekly Digest",color:"var(--s4)",items:[{d:7,l:"W",n:"Workspace Digest"},{d:14,l:"W",n:"Workspace Digest"}]}
+];
+const COLLISIONS=[
+ {sev:"crit",t:"14 emails in the first 7 days for a single new signup",b:"One onboarding email plus one Daily Digest every day from day 1 to day 7, with a Weekly Digest on top on day 7. The frequency cap that would prevent this exists in the workspace and is switched off for both."},
+ {sev:"crit",t:"Two emails a day, from two different domains, saying overlapping things",b:"'Summary of your team's work' arrives on day 6 from notifications@timeglasshq.com to explain a feature the recipient has already received five daily digests of."},
+ {sev:"risk",t:"A two-person invite generates six emails in six days",b:"The invitee gets three reminders at +2, +4 and +6 — two of them byte-identical with the same subject. The inviter gets three 'has not accepted your invite yet' emails on exactly the same schedule, all three byte-identical."},
+ {sev:"risk",t:"An accepted invitee then enters onboarding on top of everything else",b:"Accepting an invite starts the onboarding campaign, so a teammate who accepts on day 4 receives invite reminders and onboarding emails in the same window."},
+ {sev:"watch",t:"Two paid-social campaigns share one trigger segment",b:"Campaign 15 and campaign 16 both enter on segment 21. Campaign 15 is sunsetting so no new entries occur, but while both were running the same person could enter both."},
+ {sev:"watch",t:"Billing mail has no cap and no coordination with onboarding",b:"Four billing emails fire on their own events with frequency_cap_mode set to no_cap. A trial ending during onboarding stacks billing mail on top of the daily pair."}
+];
+const SOURCES=[
+ {ok:true,t:"Customer.io — full access",b:"All 11 automations, 2 broadcasts, 8 transactional messages, 67 email actions, 60+ templates, 2 layouts, 1 snippet, 14 segments, 10 sender identities, frequency caps and message limits. Delivery and engagement metrics at campaign, action, broadcast and transactional-message level, lifetime and 90-day."},
+ {ok:false,t:"Deliverability Analytics — not on this plan",b:"Inbox placement, ISP-level breakdown and sender reputation are gated behind a higher tier. The audit therefore cannot separate 'delivered to spam' from 'delivered to inbox', which is the single most useful missing number for the digest and cold-outbound diagnoses."},
+ {ok:false,t:"Product analytics — not connected",b:"Amplitude, Mixpanel or PostHog was never confirmed as source of truth. No post-click behaviour, no activation events, no feature adoption. Email-to-in-app conversion is unmeasured."},
+ {ok:false,t:"Google Analytics — not connected",b:"No landing-page performance for email-driven traffic. Compounded by the fact that only 5 of 67 emails carry UTM tags at all."},
+ {ok:false,t:"CRM — not connected",b:"HubSpot vs Salesforce was never resolved. No lifecycle stage, plan tier, workspace size or sales-touched status."},
+ {ok:false,t:"Sales / demo spreadsheet — not provided",b:"No qualitative context on who converts and why."},
+ {ok:false,t:"Competitor mailboxes — not possible here",b:"This environment has no outbound web access beyond search, so no competitor list was subscribed to and no competitor email was captured."}
+];
+const GAPS=[
+ {t:"Revenue and expansion attribution is entirely absent",b:"The brief asks marketing and lifecycle emails to be scored on revenue attribution. With no CRM join and no conversion goal configured, not one email in this audit carries a revenue number. Nothing here should be read as a revenue claim."},
+ {t:"Onboarding conversion is structurally unmeasurable right now",b:"The campaign has conversion tracking disabled and no conversion event name. Customer.io reports 0 conversions across 934 journeys — that is a configuration fact, not a performance finding, and the two must not be confused."},
+ {t:"Time-to-first-value could not be calculated",b:"It requires a first activation event joined to first send. No activation event is defined and no product analytics source is connected."},
+ {t:"Mobile rendering was inspected in code, not rendered",b:"Every template was read for @media queries, table structure and fixed widths, and scored on that. No email was opened on a real device or in a rendering service, so 'mobile' scores are a code review, not a visual test."},
+ {t:"Per-email 90-day figures are only available where a campaign has one email",b:"Customer.io returns action-level metrics as lifetime totals; the 90-day window is available at campaign, broadcast and transactional-message level. Emails showing a 90-day figure are those where the two are the same thing."},
+ {t:"Rubric scores are one reviewer's judgement",b:"The brief calls for a second reviewer to sanity-check a sample. That has not happened. Every score carries a written rationale so it can be argued with."},
+ {t:"Bounce reasons were not sampled",b:"Delivery-level bounce reasons would separate invalid addresses from policy rejections from reputation blocks. That distinction changes the fix for the cold campaign, and it is one API call away — it just was not made within this pass."}
+];
+const RUBDEF=[
+ {k:"CTA clarity",d:"One dominant action, visible without scrolling, verb-led. Scores drop for competing CTAs, buried links, or an action the reader cannot complete."},
+ {k:"Visual & brand",d:"Logo, colour, type and layout match the documented 2026 brand system. Scores drop for off-palette accents, missing footers, and unresolved artefacts left in the code."},
+ {k:"Copy & voice",d:"Reads as one company, at the right register for the category. Scores drop for duplicate bodies, repeated subject lines, and subjects that carry no information."},
+ {k:"Mobile",d:"Real breakpoints and a build that survives a narrow viewport. Assessed from template code, not from a rendered device test."},
+ {k:"Personalisation",d:"Merge fields render safely with defaults, dynamic blocks fire on the right segments, and obvious personalisation opportunities are taken."},
+ {k:"Cadence",d:"The email arrives at a defensible moment, under a frequency ceiling, without colliding with another message doing the same job."}
+];
+const OPENQ=[
+ {t:"Which product analytics tool is source of truth?",b:"Unresolved. Blocks every activation, adoption and post-click measure in this audit."},
+ {t:"Which CRM is authoritative?",b:"Unresolved. Blocks lifecycle stage, plan tier and workspace size — two of the three segmentation lenses the brief asks for."},
+ {t:"What is the canonical definition of activation?",b:"Unresolved, and this is the one that matters most. Until a single in-app event is named, the onboarding campaign cannot have a conversion goal and its performance cannot be judged."},
+ {t:"Who owns lifecycle, and who owns transactional templates?",b:"Every automation and template in the workspace was created and last modified by one person — marcus@timeglass.ai. There is no second owner in the data."},
+ {t:"Is there a brand or voice guide?",b:"Partially answered by the audit itself: template 93 carries the 2026 palette as a code comment and the marketing site uses the same values. Whether a written guide exists is still unknown."},
+ {t:"Any known deliverability incidents?",b:"None visible in Customer.io. Three sending domains are in use and none has a reputation history available on this plan."},
+ {t:"Workspace-size thresholds?",b:"Moot until seat count is synced to Customer.io."},
+ {t:"Definitive competitor list?",b:"Timely, Memtime and Toggl Track are the obvious three. Needs confirming before anyone spends two weeks subscribing."}
+];
+</script>
+<style>
+.brow{display:grid;grid-template-columns:minmax(96px,168px) minmax(0,1fr);gap:12px;align-items:center;margin-bottom:9px}
+.blab{font-size:11.5px;color:var(--ink-2);text-align:right;line-height:1.25}
+.btrack{position:relative;height:22px;background:var(--sunken);border-radius:4px;overflow:visible}
+.bband{position:absolute;top:0;bottom:0;background:var(--accent-soft);border-left:1px solid var(--accent-mark);border-right:1px solid var(--accent-mark);opacity:.55;border-radius:2px}
+.bfill{position:absolute;top:3px;bottom:3px;left:0;border-radius:0 4px 4px 0;min-width:2px}
+.bval{position:absolute;top:50%;transform:translateY(-50%);font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink);white-space:nowrap;padding-left:7px}
+.bsub{font-size:10px;color:var(--ink-3);display:block}
+.baxis{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink-3);margin-top:2px;padding-left:0}
+.bandkey{font-size:10.5px;color:var(--ink-3);margin-top:9px;display:flex;align-items:center;gap:6px}
+.bandkey i{width:14px;height:9px;background:var(--accent-soft);border-left:1px solid var(--accent-mark);border-right:1px solid var(--accent-mark);display:block;border-radius:2px}
+.catcard{background:var(--raised);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+.cathead{display:flex;align-items:flex-start;gap:12px;padding:15px 18px;border-bottom:1px solid var(--rule-soft)}
+.cathead h3{font-size:14px}
+.cathead .cn{font-size:12.5px;color:var(--ink-2);line-height:1.55;max-width:74ch;margin-top:4px}
+.catmetrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:1px;background:var(--rule-soft)}
+.catmetrics>div{background:var(--raised);padding:10px 14px}
+.catmetrics .k{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.catmetrics .v{font-family:"IBM Plex Mono",monospace;font-size:16px;margin-top:2px}
+</style>
+<script>
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const IX={sent:0,del:1,ho:2,hc:3,op:4,cl:5,bo:6,fa:7,un:8,sp:9,su:10};
+let WIN="life";
+const g=(e,w)=>((w||WIN)==="d90" ? (e.d90||null) : e.life);
+const pct=(n,d,dp)=>d>0?(100*n/d).toFixed(dp===undefined?1:dp)+"%":"—";
+const num=n=>n.toLocaleString("en-US");
+const sum=(arr,i)=>arr.reduce((a,e)=>a+((g(e)||[0,0,0,0,0,0,0,0,0,0,0])[i]),0);
+const sumL=(arr,i)=>arr.reduce((a,e)=>a+e.life[i],0);
+const DIMS=["CTA clarity","Visual & brand","Copy & voice","Mobile","Personalisation","Cadence"];
+const DIMK=["cta","des","cop","mob","per","cad"];
+
+/* ---------- shared bar chart ---------- */
+function bars(rows,opt){
+  opt=opt||{}; const max=opt.max||Math.max(...rows.map(r=>r.value),0.0001);
+  let h='<div class="barset">';
+  rows.forEach(r=>{
+    const w=Math.max(0.6,100*r.value/max);
+    const band = opt.band ? `<div class="bband" style="left:${100*opt.band.lo/max}%;width:${100*(opt.band.hi-opt.band.lo)/max}%"></div>`:"";
+    const inside = w>52;
+    h+=`<div class="brow"><span class="blab">${r.label}${r.sub?`<span class="bsub">${r.sub}</span>`:""}</span>`
+      +`<div class="btrack">${band}<div class="bfill" style="width:${w}%;background:${r.color||"var(--s2)"}"></div>`
+      +`<span class="bval" style="${inside?`left:${w}%;transform:translate(-100%,-50%);padding-right:8px;padding-left:0;color:#fff`:`left:${w}%`}">${r.disp}</span></div></div>`;
+  });
+  h+=`</div><div class="baxis"><span>0</span><span>${opt.axis||(opt.fmtMax?opt.fmtMax(max):max)}</span></div>`;
+  if(opt.band) h+=`<div class="bandkey"><i></i>${opt.band.label}</div>`;
+  return h;
+}
+
+/* ---------- category aggregation ---------- */
+function catAgg(c,w){
+  const items=E.filter(e=>e.cat===c);
+  const t=[0,0,0,0,0,0,0,0,0,0,0];
+  items.forEach(e=>{const d=g(e,w); if(d) d.forEach((v,i)=>t[i]+=v);});
+  return {items,t};
+}
+function progAgg(w){
+  const t=[0,0,0,0,0,0,0,0,0,0,0];
+  E.forEach(e=>{const d=g(e,w); if(d) d.forEach((v,i)=>t[i]+=v);});
+  return t;
+}
+
+/* ---------- 00 findings ---------- */
+function renderSummary(){
+  const t=progAgg("life");
+  const d90=progAgg("d90");
+  const T=WIN==="d90"?d90:t;
+  const cold=catAgg("Marketing","life").t, dig=catAgg("Product notifications","life").t;
+  const never=E.filter(e=>e.life[0]===0).length;
+  const drafted=3262+38;
+  $("#tiles-top").innerHTML=[
+    {k:"Emails configured",v:"67",s:"across 11 automations, 2 broadcasts, 7 transactional"},
+    {k:WIN==="d90"?"Sends, 90 days":"Sends, lifetime",v:num(T[0]),s:WIN==="d90"?"2026-06-06 → 2026-09-04":"since 2025-11-13"},
+    {k:"Human open rate",v:pct(T[2],T[1]),s:`${pct(T[4]-T[2],T[1])} of opens are machines`},
+    {k:"Human click rate",v:pct(T[3],T[1]),s:`click-to-open ${pct(T[3],T[2])}`},
+    {k:"Unsubscribe rate",v:pct(T[8],T[1],2),s:"benchmark ceiling 0.50%"},
+    {k:"Bounce rate",v:pct(T[6],T[0],2),s:"benchmark ceiling 2.00%",cls:T[6]/T[0]>0.02?"alert":""},
+    {k:"Never send",v:String(never),s:"live emails with zero sends, all time",cls:"alert"},
+    {k:"Stuck in draft",v:num(drafted),s:"messages queued and never delivered",cls:"alert"}
+  ].map(x=>`<div class="tile ${x.cls||""}"><span class="k">${x.k}</span><span class="v">${x.v}</span><span class="sub">${x.s}</span></div>`).join("");
+
+  $("#headline-findings").innerHTML=[
+    {sev:"crit",t:"The cold outbound sequence is eroding the sending domain",
+     b:`8,460 sends — 23% of everything ever sent. Emails 1 and 2 work (30% open, 19% click). From email 3 to email 17 the sequence produced <b>16 human clicks from 7,773 deliveries</b> while bounces climbed from 4.8% to 6.2% and suppressions from zero to 33 per send. Over the last 90 days its human open rate is 5.3% and its bounce rate 5.0%. It is currently paying for reach with reputation.`},
+    {sev:"crit",t:"The biggest email in the program has no job for the reader",
+     b:`The Daily Digest is <b>45.6% of all sends</b> (16,631 lifetime). 39.5% of people open it and 4.2% of those click — under half the 10% floor. The subject line is identical on every send and contains no number, no name and no reason to open. Roughly 3,500 people opened it last quarter and did nothing.`},
+    {sev:"risk",t:"A new signup gets 14 emails in 7 days, and the cap that would stop it is off",
+     b:`One onboarding email and one Daily Digest every day for the first week. A frequency cap of one email per seven days exists in this workspace and is enabled on <b>1 of 11 automations</b>. Onboarding's unsubscribe rate is 1.01% — twice the acceptable ceiling — and peaks at 2.5% on day 2.`},
+    {sev:"risk",t:"Three emails are configured, live, and have never sent",
+     b:`'Set up your digests' has fired zero times since December 2025 because its precondition requires an attribute the product may never write. Two paid-social steps have also never fired. Separately, the Nurture and Engagement loops have generated <b>3,262 drafted messages and 345 actual sends</b> since January.`},
+    {sev:"watch",t:"Duplicate content is shipping to real people",
+     b:`Templates 83 and 84 are byte-identical and 364 people received both. Templates 46, 47 and 48 are byte-identical and go out on three consecutive reminders. Templates 5 and 10 are byte-identical and carry the same subject as a third reminder. 'Zero behavior change required' is used as a subject line twice.`}
+  ].map((f,i)=>`<div class="rec"><span class="rk">${String(i+1).padStart(2,"0")}</span><div><h4>${f.t}</h4><p class="why">${f.b}</p></div><div class="rt"><span class="pill p-${f.sev}">${f.sev==="crit"?"Critical":f.sev==="risk"?"Serious":"Watch"}</span></div></div>`).join("");
+
+  const volRows=CATS.map(c=>{const a=catAgg(c,"life"); return {label:c,sub:`${a.items.length} emails`,value:a.t[0],disp:num(a.t[0]),color:"var(--s2)"};}).sort((a,b)=>b.value-a.value);
+  $("#volchart").innerHTML=bars(volRows,{axis:num(Math.max(...volRows.map(r=>r.value)))});
+
+  const openRows=CATS.map(c=>{const a=catAgg(c,"life"); return {label:c,value:a.t[1]?100*a.t[2]/a.t[1]:0,disp:pct(a.t[2],a.t[1]),color:"var(--s5)",sub:num(a.t[1])+" delivered"};}).sort((a,b)=>b.value-a.value);
+  $("#opencat").innerHTML=bars(openRows,{max:60,axis:"60%",band:{lo:19,hi:34,label:"Published B2B SaaS range, marketing through transactional"}});
+
+  const ctorRows=CATS.map(c=>{const a=catAgg(c,"life"); return {label:c,value:a.t[2]?100*a.t[3]/a.t[2]:0,disp:pct(a.t[3],a.t[2]),color:"var(--s4)",sub:num(a.t[2])+" human opens"};}).sort((a,b)=>b.value-a.value);
+  $("#ctorcat").innerHTML=bars(ctorRows,{max:80,axis:"80%",band:{lo:10,hi:15,label:"10–15% is the published ‘good’ band"}});
+
+  $("#wins").innerHTML=[
+    ["The invite email","74.9% open, 56.2% click, 75.1% click-to-open, zero unsubscribes in 546 deliveries, and half of everyone entering the journey converts. One action, above the fold, straight after something the recipient did."],
+    ["The billing sequence","Four emails with explicit preheaders, conditional blocks that change wording by subscription state, a single unambiguous button, and the trust footer on all four. Best-built mail in the workspace — it just needs someone to make people click it."],
+    ["The paid-social templates","The only emails using the documented 2026 brand palette, the only ones with correct per-email UTM tagging, with real mobile breakpoints and the sharpest positioning copy in the program. They were sent to a list that does not open email."],
+    ["Segmented release broadcasts","The August desktop release went to legacy 1.x and native pre-2.0.4 users as two separate sends rather than one blast. 37.5% and 44.4% open. The instinct is right; only the subject lines let them down."],
+    ["Machine-open hygiene","Every figure in this audit is human-only. That discipline matters: program-wide, machine and prefetch opens run at 1.4× human opens, so any report using raw open counts overstates engagement by more than half."]
+  ].map(([t,b])=>`<li><span class="pill p-good">Keep</span><div><b>${t}</b> — ${b}</div></li>`).join("");
+}
+/* ---------- rubric helpers ---------- */
+const dots=(v)=>`<span class="dots" title="${v} of 5">`+[1,2,3,4,5].map(i=>`<i class="${i<=v?(v<=2?"on lo":"on"):""}"></i>`).join("")+"</span>";
+const rubMin=e=>Math.min(...e.rub._s);
+const FLAGLABEL={never:["p-crit","Never sends"],dup:["p-risk","Duplicate"],nounsub:["p-risk","No unsub"],deliverability:["p-watch","Deliverability"],listquality:["p-watch","List quality"],lowuse:["p-watch","No clicks"],volume:["p-watch","Dominant volume"],thin:["p-none","Thin data"],best:["p-good","Best in program"]};
+
+/* ---------- 01 inventory ---------- */
+function renderInv(){
+  const q=$("#q").value.trim().toLowerCase(), fc=$("#f-cat").value, fs=$("#f-status").value, ff=$("#f-flag").value;
+  let rows=E.filter(e=>{
+    if(fc&&e.cat!==fc) return false;
+    if(fs&&e.st!==fs) return false;
+    if(ff==="never"&&e.life[0]!==0) return false;
+    if(ff==="dup"&&!e.fl.includes("dup")) return false;
+    if(ff==="nounsub"&&!e.fl.includes("nounsub")) return false;
+    if(ff==="deliver"&&!e.fl.includes("deliverability")) return false;
+    if(ff==="lowscore"&&rubMin(e)>2) return false;
+    if(q){const hay=(e.n+" "+e.s+" "+e.camp+" "+e.cat+" t"+e.t).toLowerCase(); if(!hay.includes(q)) return false;}
+    return true;
+  }).sort((a,b)=>b.life[0]-a.life[0]);
+  $("#rowcount").textContent=`${rows.length} of ${E.length} emails · ${num(rows.reduce((a,e)=>a+e.life[0],0))} sends`;
+  $("#invbody").innerHTML=rows.map(e=>{
+    const d=e.life, r=e.rub._s;
+    const st=e.st==="Live"?"p-good":e.st==="Never sent"||e.st==="Drafts only"||e.st==="Draft"?"p-crit":e.st==="Sunsetting"?"p-dead":"p-none";
+    return `<tr class="clickable" data-id="${e.id}">
+      <td><span class="stripe" style="background:${CATCOLOR[e.cat]}"></span><span class="nm">${e.n}</span><span class="sj">${e.s}</span></td>
+      <td>${e.cat}</td><td><span class="pill ${st}">${e.st}</span></td>
+      <td class="n">${num(d[0])}</td><td class="n">${pct(d[1],d[0],0)}</td>
+      <td class="n">${pct(d[2],d[1])}</td><td class="n">${pct(d[3],d[1])}</td><td class="n">${pct(d[3],d[2])}</td>
+      <td class="n">${pct(d[8],d[1],2)}</td><td class="n">${pct(d[6],d[0],1)}</td>
+      <td>${dots(Math.round(r.reduce((a,b)=>a+b,0)/6*10)/10)}<span class="num" style="font-size:10px;color:var(--ink-3);margin-left:5px">${(r.reduce((a,b)=>a+b,0)/6).toFixed(1)}</span></td>
+      <td>${e.fl.filter(f=>FLAGLABEL[f]).map(f=>`<span class="pill ${FLAGLABEL[f][0]}">${FLAGLABEL[f][1]}</span>`).join(" ")||'<span class="pill p-none">—</span>'}</td>
+    </tr>`;
+  }).join("")||`<tr><td colspan="12" style="padding:26px;text-align:center;color:var(--ink-3)">No emails match those filters.</td></tr>`;
+  $$("#invbody tr.clickable").forEach(tr=>tr.onclick=()=>{ $("#pick").value=tr.dataset.id; renderDeep(); go("deep"); });
+}
+
+/* ---------- 02 categories ---------- */
+function renderCat(){
+  $("#catcards").innerHTML=CATS.map(c=>{
+    const a=catAgg(c,"life"), t=a.t;
+    const avg=a.items.length?a.items.reduce((s,e)=>s+e.rub._s.reduce((x,y)=>x+y,0)/6,0)/a.items.length:0;
+    const worst=[...a.items].filter(e=>e.life[0]>0).sort((x,y)=>(x.life[1]?x.life[2]/x.life[1]:9)-(y.life[1]?y.life[2]/y.life[1]:9))[0];
+    const best=[...a.items].filter(e=>e.life[1]>50).sort((x,y)=>(y.life[3]/y.life[1])-(x.life[3]/x.life[1]))[0];
+    return `<div class="catcard">
+      <div class="cathead"><span class="stripe" style="background:${CATCOLOR[c]};height:34px;width:4px;margin-top:2px"></span>
+        <div><h3>${c}</h3><p class="cn">${CATNOTE[c]}</p></div></div>
+      <div class="catmetrics">
+        <div><span class="k">Emails</span><div class="v">${a.items.length}</div></div>
+        <div><span class="k">Sends</span><div class="v">${num(t[0])}</div></div>
+        <div><span class="k">Delivered</span><div class="v">${pct(t[1],t[0],0)}</div></div>
+        <div><span class="k">Human open</span><div class="v">${pct(t[2],t[1])}</div></div>
+        <div><span class="k">Human CTR</span><div class="v">${pct(t[3],t[1])}</div></div>
+        <div><span class="k">CTOR</span><div class="v">${pct(t[3],t[2])}</div></div>
+        <div><span class="k">Unsub</span><div class="v">${pct(t[8],t[1],2)}</div></div>
+        <div><span class="k">Bounce</span><div class="v">${pct(t[6],t[0],1)}</div></div>
+        <div><span class="k">Failed</span><div class="v">${pct(t[7],t[0],1)}</div></div>
+        <div><span class="k">Rubric avg</span><div class="v">${avg?avg.toFixed(1):"—"}</div></div>
+      </div>
+      <div style="padding:13px 18px;border-top:1px solid var(--rule-soft);font-size:12px;color:var(--ink-2);display:flex;gap:22px;flex-wrap:wrap">
+        ${best?`<span><span class="eyebrow">Strongest</span><br>${best.n} · ${pct(best.life[3],best.life[1])} click</span>`:""}
+        ${worst?`<span><span class="eyebrow">Weakest</span><br>${worst.n} · ${pct(worst.life[2],worst.life[1])} open</span>`:""}
+      </div></div>`;
+  }).join("");
+}
+
+/* ---------- 03 deep dive ---------- */
+function renderDeep(){
+  const e=E.find(x=>x.id===$("#pick").value)||E[0];
+  const d=e.life, has90=!!e.d90, d9=e.d90;
+  $("#pickmeta").textContent=`${e.camp} · template ${e.t??"—"} · ${e.st}`;
+  const mc=(k,v,b)=>`<div class="mcell"><span class="k">${k}</span><div class="v">${v}</div><div class="b">${b||""}</div></div>`;
+  $("#deepbody").innerHTML=`
+   <div class="detail">
+    <div>
+      <div class="block">
+        <h2 style="font-size:17px">${e.n}</h2>
+        <p class="hint" style="font-size:13px;color:var(--ink-2);margin-top:5px">Subject line: <span class="num">${e.s.replace(/</g,"&lt;")}</span></p>
+        <div class="metricgrid" style="margin-top:14px">
+          ${mc("Sends",num(d[0]),has90?num(d9[0])+" in 90d":"lifetime")}
+          ${mc("Delivered",pct(d[1],d[0],1),num(d[1])+" of "+num(d[0]))}
+          ${mc("Human open",pct(d[2],d[1]),num(d[2])+" people")}
+          ${mc("Human click",pct(d[3],d[1]),num(d[3])+" people")}
+          ${mc("Click-to-open",pct(d[3],d[2]),"floor 10%")}
+          ${mc("Machine opens",num(d[4]-d[2]),"excluded above")}
+          ${mc("Unsubscribed",pct(d[8],d[1],2),"ceiling 0.50%")}
+          ${mc("Bounced",pct(d[6],d[0],1),"ceiling 2.0%")}
+          ${mc("Failed",pct(d[7],d[0],1),"ceiling 2.0%")}
+          ${mc("Spam",pct(d[9],d[1],3),"ceiling 0.10%")}
+        </div>
+      </div>
+      <div class="block">
+        <h2>What this email does wrong, and right</h2>
+        <div class="panel panel-pad"><ul class="issues">${e.iss.map(i=>{const bad=/never|zero human|identical|duplicate|failure rate|bounce rate|no unsubscribe|stale|under half|collapse/i.test(i);return `<li><span class="idot ${bad?"bad":""}" aria-hidden="true"></span><div>${bad?"<b>Issue.</b> ":""}${i}</div></li>`;}).join("")}</ul></div>
+      </div>
+    </div>
+    <div>
+      <div class="block">
+        <h2>Configuration</h2>
+        <div class="panel panel-pad"><dl class="kv">
+          <dt>Category</dt><dd>${e.cat}</dd>
+          <dt>Automation</dt><dd>${e.camp}${e.cid?" (#"+e.cid+")":""}</dd>
+          <dt>Template</dt><dd>${e.t??"—"}</dd>
+          <dt>Sends from</dt><dd style="font-size:11px">${e.from}</dd>
+          <dt>Status</dt><dd>${e.st}</dd>
+          <dt>Position</dt><dd>${e.day!==null&&e.day!==undefined?"day "+e.day:(e.seq?"step "+e.seq:"event-triggered")}</dd>
+          <dt>90-day data</dt><dd>${has90?"yes":"campaign level only"}</dd>
+        </dl></div>
+      </div>
+      <div class="block">
+        <h2>Content rubric</h2>
+        <p class="hint">Scored 1–5 against the definitions on the Method page.</p>
+        <div class="rubgrid">
+          ${DIMS.map((dim,i)=>`<div class="rubcell"><div class="rh"><span class="rl">${dim}</span>${dots(e.rub._s[i])}</div><p class="rr">${e.rub[DIMK[i]]}</p></div>`).join("")}
+        </div>
+      </div>
+    </div>
+   </div>`;
+}
+
+/* ---------- 04 segments ---------- */
+const SRC=[
+ {k:"Product — self signup",how:"Onboarding campaign, triggered on clerk_user_id appearing on the profile",cats:["Onboarding"]},
+ {k:"Product — team invite",how:"Workspace invite flow, triggered on workspace_invite_sent, plus the two API invite messages",cats:["Transactional"]},
+ {k:"Product — in-app activity",how:"Digests and project updates, triggered by workspace activity",cats:["Product notifications"]},
+ {k:"Product — billing & retention",how:"Trial and grace-period events, plus the two re-engagement loops",cats:["Lifecycle"]},
+ {k:"Cold — RB2B identification",how:"Triggered on rb2b_lead_identified from website visitor de-anonymisation",cats:["Marketing"],only:"RB2B Lead Campaign"},
+ {k:"Paid — Meta & LinkedIn lead forms",how:"Segment 21, 'Paid Social Lead Forms — Meta + LinkedIn'",cats:["Marketing","Marketing paused"],onlyNot:"RB2B Lead Campaign"},
+ {k:"Broadcast — installed base",how:"Static and dynamic segments built from desktop app version",cats:["Announcements"]}
+];
+function renderSeg(){
+  $("#srcbody").innerHTML=SRC.map(s=>{
+    let items=E.filter(e=>s.cats.includes(e.cat));
+    if(s.only) items=items.filter(e=>e.camp===s.only);
+    if(s.onlyNot) items=items.filter(e=>e.camp!==s.onlyNot);
+    const t=[0,0,0,0,0,0,0,0,0,0,0]; items.forEach(e=>e.life.forEach((v,i)=>t[i]+=v));
+    return `<tr><td class="nm">${s.k}</td><td style="color:var(--ink-2);font-size:11.5px;max-width:34ch">${s.how}</td>
+      <td class="n">${items.length}</td><td class="n">${num(t[0])}</td><td class="n">${pct(t[2],t[1])}</td>
+      <td class="n">${pct(t[3],t[1])}</td><td class="n">${pct(t[8],t[1],2)}</td><td class="n">${pct(t[6],t[0],1)}</td></tr>`;
+  }).join("");
+  $("#lifecycle").innerHTML=[
+    ["New — days 0 to 8","Derivable. The onboarding campaign is the stage. 934 journeys, 786 finished, 0 conversions recorded because no goal is set.","p-watch"],
+    ["Active","Derivable only as 'receives a digest'. 16,631 daily digest sends is the closest thing to an active-user count in this workspace.","p-watch"],
+    ["Dormant","Segment 2, 'Have not logged in recently', exists — but no live automation targets it. The two loops that would have are drafting, not sending.","p-risk"],
+    ["At risk / churned","Derivable from the four billing events. 348 sends across the whole grace-period sequence.","p-good"]
+  ].map(([k,v,p])=>`<div class="rubcell"><div class="rh"><span class="rl">${k}</span><span class="pill ${p}">${p==="p-good"?"Available":p==="p-watch"?"Partial":"Blocked"}</span></div><p class="rr">${v}</p></div>`).join("");
+}
+
+/* ---------- 05 cadence ---------- */
+function renderCad(){
+  const DAYS=15;
+  $("#tiles-cad").innerHTML=[
+    {k:"Cap that exists",v:"1 / 7d",s:"one email per seven days, email + webhook"},
+    {k:"Automations using it",v:"1 of 11",s:"only the cold outbound campaign",cls:"alert"},
+    {k:"New signup, week 1",v:"14",s:"emails received in the first seven days",cls:"alert"},
+    {k:"Subscription topics",v:"0",s:"unsubscribe is all-or-nothing",cls:"alert"},
+    {k:"Onboarding unsub",v:"1.01%",s:"twice the 0.50% ceiling",cls:"alert"}
+  ].map(x=>`<div class="tile ${x.cls||""}"><span class="k">${x.k}</span><span class="v">${x.v}</span><span class="sub">${x.s}</span></div>`).join("");
+
+  const perDay=Array(DAYS).fill(0);
+  CADENCE.forEach(r=>r.items.forEach(it=>{ if(!it.dead && it.d<DAYS) perDay[it.d]++; }));
+  let h='<div class="cad">';
+  CADENCE.forEach(r=>{
+    h+=`<div class="cadlbl"><span class="stripe" style="background:${r.color}"></span>${r.row}</div><div class="cadtrack">`;
+    for(let i=1;i<DAYS;i++) h+=`<span class="cadtick" style="left:${100*i/DAYS}%"></span>`;
+    r.items.forEach(it=>{ if(it.d>=DAYS) return;
+      h+=`<span class="cadmark" style="left:calc(${100*it.d/DAYS}% + 3px);width:calc(${100/DAYS}% - 6px);background:${it.dead?"transparent":r.color};${it.dead?"border:1px dashed var(--ink-3);color:var(--ink-3)":""}" title="Day ${it.d} — ${it.n}">${it.l}</span>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`<div class="cadlbl" style="font-weight:600;color:var(--ink)">Total that day</div><div class="cadtrack" style="height:30px">`;
+  perDay.forEach((n,i)=>{ if(!n) return;
+    h+=`<span class="cadmark" style="left:calc(${100*i/DAYS}% + 3px);width:calc(${100/DAYS}% - 6px);background:${n>=2?"var(--risk)":"var(--rule)"};color:${n>=2?"#fff":"var(--ink-2)"};top:7px" title="Day ${i}: ${n} emails">${n}</span>`;
+  });
+  h+=`</div></div><div class="cadaxis">${Array.from({length:DAYS},(_,i)=>i%2===0?`<span>d${i}</span>`:`<span></span>`).join("")}</div>`;
+  $("#cadchart").innerHTML=h;
+
+  $("#collisions").innerHTML=COLLISIONS.map(c=>`<li><span class="pill p-${c.sev}">${c.sev==="crit"?"Critical":c.sev==="risk"?"Serious":"Watch"}</span><div><b>${c.t}</b><br>${c.b}</div></li>`).join("");
+
+  $("#capbody").innerHTML=[
+    ["Onboarding Success Campaign","no_cap",9,"14 (with digests)","A new signup receives one onboarding email plus one digest every day for a week."],
+    ["Workspace Invitee Flow","no_cap",7,"6","Invitee and inviter each receive three emails in six days, several byte-identical."],
+    ["RB2B Lead Campaign","specific",17,"1","The only automation with the cap applied — and the only one whose audience never asked for mail."],
+    ["Nurture Loop","no_cap",3,"—","Drafting only; would re-enrol every 14 days with no exit ceiling."],
+    ["Engagement Loop","no_cap",3,"—","Drafting only; same unbounded loop."],
+    ["Trial ending soon","no_cap",1,"1","Fires on its own event."],
+    ["Trial ended","no_cap",1,"1","Fires on its own event."],
+    ["Billing grace reminder","no_cap",1,"1","Fires on its own event."],
+    ["Time tracking paused","no_cap",1,"1","Fires on its own event."],
+    ["Paid Social Lead Nurture v1","no_cap",5,"5","Five emails on consecutive days."],
+    ["Paid Social — Plain format test","no_cap",10,"5","Five emails on consecutive days, per arm."],
+    ["Daily & Weekly Digest","n/a — transactional",2,"8","Transactional messages sit outside campaign caps entirely, and send_to_unsubscribed is enabled."]
+  ].map(([n,m,c,x,eff])=>`<tr><td class="nm">${n}</td><td><span class="pill ${m==="specific"?"p-good":"p-risk"}">${m}</span></td><td class="n">${c}</td><td class="n">${x}</td><td style="color:var(--ink-2);max-width:40ch">${eff}</td></tr>`).join("");
+}
+/* ---------- 06 benchmarks ---------- */
+function tgVal(key){
+  const P=progAgg("life");
+  const mk=catAgg("Marketing","life").t, tx=catAgg("Transactional","life").t, pn=catAgg("Product notifications","life").t;
+  const wel=E.find(e=>e.id==="a72").life;
+  const M={
+    open_mkt:[mk[2],mk[1],1], open_txn:[tx[2],tx[1],1], open_wel:[wel[2],wel[1],1],
+    ctr_mkt:[mk[3],mk[1],1], ctr_txn:[tx[3],tx[1],1], ctor_all:[P[3],P[2],1],
+    unsub:[P[8],P[1],2], bounce:[P[6],P[0],2], spam:[P[9],P[1],3], fail:[P[7],P[0],1]
+  }[key];
+  return {v:100*M[0]/M[1], s:pct(M[0],M[1],M[2])};
+}
+function renderBench(){
+  $("#benchbody").innerHTML=BENCH.map(b=>{
+    const t=tgVal(b.key);
+    const inside=t.v>=b.lo&&t.v<=b.hi;
+    const above=t.v>b.hi;
+    const higherIsBetter=!/unsub|bounce|spam|fail|ceiling/i.test(b.m+b.t);
+    let cls,lab;
+    if(higherIsBetter){ cls=above?"p-good":inside?"p-good":"p-risk"; lab=above?"Above range":inside?"In range":"Below range"; }
+    else { cls=t.v<=b.lo?"p-good":t.v<=b.hi?"p-watch":"p-risk"; lab=t.v<=b.lo?"Under":t.v<=b.hi?"At ceiling":"Over"; }
+    return `<tr><td class="nm">${b.m}</td><td style="color:var(--ink-2)">${b.t}</td>
+      <td class="n">${b.lo}%–${b.hi}%</td>
+      <td class="n"><span class="pill ${cls}">${t.s}</span></td>
+      <td style="color:var(--ink-2);max-width:46ch">${b.read}</td></tr>`;
+  }).join("");
+  $("#benchsrc").innerHTML=BENCHSRC;
+}
+
+/* ---------- 07 recommendations ---------- */
+function renderRecs(){
+  const groups=[["quick","Quick wins — shippable in days","p-good"],["medium","Medium effort — a sprint","p-watch"],["struct","Structural — phase 2","p-risk"]];
+  $("#recbody").innerHTML=groups.map(([g,title,pill])=>{
+    const rs=RECS.filter(r=>r.tier===g);
+    return `<div class="block"><h2>${title} <span class="pill ${pill}" style="margin-left:6px">${rs.length}</span></h2>
+      <div class="panel">${rs.map((r,i)=>`
+        <div class="rec"><span class="rk">${String(i+1).padStart(2,"0")}</span>
+          <div><h4>${r.t}</h4><p class="why">${r.why}</p>
+            <div class="meta"><span class="pill p-none">Owner · ${r.own}</span><span class="pill p-none">Effort · ${r.eff}</span><span class="pill ${r.conf==="High"?"p-good":"p-watch"}">Confidence · ${r.conf}</span></div>
+          </div>
+          <div class="rt"><span style="max-width:19ch;text-align:right;line-height:1.4">${r.imp}</span></div>
+        </div>`).join("")}</div></div>`;
+  }).join("");
+}
+
+/* ---------- 08 method ---------- */
+function renderMethod(){
+  $("#sources").innerHTML=SOURCES.map(s=>`<li><span class="pill ${s.ok?"p-good":"p-risk"}">${s.ok?"Used":"Missing"}</span><div><b>${s.t}</b><br>${s.b}</div></li>`).join("");
+  $("#gaps").innerHTML=GAPS.map(g=>`<li><span class="pill p-watch">Gap</span><div><b>${g.t}</b><br>${g.b}</div></li>`).join("");
+  $("#rubdef").innerHTML=RUBDEF.map(r=>`<div class="rubcell"><div class="rh"><span class="rl">${r.k}</span></div><p class="rr">${r.d}</p></div>`).join("");
+  $("#openq").innerHTML=OPENQ.map(o=>`<li><span class="pill p-none">?</span><div><b>${o.t}</b><br>${o.b}</div></li>`).join("");
+}
+
+/* ---------- boot ---------- */
+const TITLES={summary:"Findings",inventory:"Inventory",category:"Categories",deep:"Email detail",segments:"Segments",cadence:"Cadence & cannibalisation",bench:"Benchmarks & competitors",recs:"Recommendations",method:"Method & gaps"};
+function go(v){
+  $$(".view").forEach(s=>s.hidden = s.id!=="v-"+v);
+  $$("#nav button").forEach(b=>b.setAttribute("aria-current", String(b.dataset.v===v)));
+  $("#vtitle").textContent=TITLES[v];
+  window.scrollTo({top:0,behavior:"instant"});
+}
+function boot(){
+  [...new Set(E.map(e=>e.cat))].forEach(c=>$("#f-cat").insertAdjacentHTML("beforeend",`<option>${c}</option>`));
+  [...new Set(E.map(e=>e.st))].forEach(s=>$("#f-status").insertAdjacentHTML("beforeend",`<option>${s}</option>`));
+  $("#pick").innerHTML=[...E].sort((a,b)=>b.life[0]-a.life[0]).map(e=>`<option value="${e.id}">${e.n} — ${e.camp} (${num(e.life[0])} sends)</option>`).join("");
+  ["#q","#f-cat","#f-status","#f-flag"].forEach(s=>$(s).addEventListener("input",renderInv));
+  $("#pick").addEventListener("change",renderDeep);
+  $$("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+  $$(".seg button").forEach(b=>b.onclick=()=>{
+    WIN=b.dataset.w; $$(".seg button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    renderSummary(); renderBench();
+  });
+  $("#themebtn").onclick=()=>{
+    const cur=document.documentElement.getAttribute("data-theme");
+    const sysDark=window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const next = cur ? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark");
+    document.documentElement.setAttribute("data-theme",next);
+  };
+  renderSummary(); renderInv(); renderCat(); renderDeep(); renderSeg(); renderCad(); renderBench(); renderRecs(); renderMethod();
+}
+boot();
+</script>
