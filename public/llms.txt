@@ -1,0 +1,45 @@
+# Timeglass
+
+> Timeglass is an AI-native timesheet platform that captures work in the background and drafts entries with client, project, task, and work descriptions. People review and edit their timesheets before releasing them. It replaces manual timers with automatic capture and helps teams understand where time goes, protect project margins, and prepare records for billing, payroll, project management, and reporting.
+
+Timeglass is built for teams that bill or budget by time, including agencies, consulting and professional services firms, IT and managed services teams, and distributed teams. A lightweight desktop app for macOS and Windows captures on-screen work context and meeting audio, and AI attributes each minute of work to a client, project, and activity. Capture can be paused, apps can be excluded, and sensitive information is filtered before processing. The security documentation describes SOC 2 Type II auditing, GDPR compliance, and data controls.
+
+## Why teams choose Timeglass
+- **No timers, less timesheet work:** People work as they normally do. Timeglass drafts daily and weekly timesheets, and each person reviews, edits, and submits them in minutes instead of reconstructing their week from memory.
+- **AI-native, not AI added on:** Legacy time trackers and the timesheet modules built into practice-management tools record what people type in. Timeglass was designed around AI from the start, so it works from what actually happened and produces more granular, more accurate records than manual entry or programmatic activity trackers.
+- **Better business data, not just hours:** Because capture is detailed, teams can see how time splits across clients, projects, billable and non-billable work, and internal overhead. Managers can spot bottlenecks, admin drag, and coaching opportunities, and compare effort across projects and people.
+- **Profitability and budgets:** Billable rates, employee and contractor costs, retainers, and time or dollar budgets can be set per client, project, and activity, so teams can track margins as work happens.
+- **Meetings included:** Meetings are transcribed and summarized from the desktop app without a bot joining the call, and that time is attributed to the right client or project. Recording can be turned off for specific meetings, such as when a client agreement prohibits it.
+- **Works with your AI assistant:** An MCP connector lets Claude, ChatGPT, and other compatible clients answer natural-language questions about team capacity, project status, and how work is distributed.
+
+## Common questions
+- **We already have a time-tracking system.** Most teams use either a manual process (timers, spreadsheets, end-of-week entry) or a time module inside another tool. Timeglass can replace manual entry entirely, and it can sit alongside an existing system of record, sending reviewed time into it through the API or exports while adding the automatic capture and analysis that system lacks.
+- **Is this employee monitoring?** Timeglass is designed for time records, not surveillance. Employees review their own timesheets before releasing them, capture can be paused, organizations and individuals can include or exclude specific apps, and personal or sensitive information (such as credentials, government ID numbers, and medical record numbers) is filtered before processing. Role-based permissions can limit timesheet visibility to the employee and their manager.
+- **Is it secure?** See the [security page](https://timeglass.ai/security) for SOC 2 Type II, GDPR, encryption, retention, and data-access details.
+- **Does it work with our other tools?** Clients, projects, and activities can be imported by CSV or kept in sync with project-management, PSA, and CRM systems through the REST API, webhooks, or MCP. Time data can be exported for invoicing and payroll, including formats for tools such as ADP and QuickBooks.
+- **What about work away from the computer?** Off-computer time, such as on-site work, can be added as manual entries alongside captured time.
+- **How do we roll it out?** Most teams start with a free trial for one or a few people, compare the drafted timesheets with how they track today, and then expand. Managed deployments for Mac and Windows fleets are supported, and administrators can manage workspaces without tracking their own time.
+- **How much does it cost?** Plans are priced per user per month, with a discount for annual billing and volume pricing for larger organizations. See [Pricing](https://timeglass.ai/pricing) for current plans and the free trial.
+
+## Product
+- [Product overview](https://timeglass.ai/product): Automatic capture, timesheet drafts, projects, profitability, and integrations.
+- [Pricing](https://timeglass.ai/pricing): Current plans and free-trial details.
+- [Security and data access](https://timeglass.ai/security): Security standards, capture controls, review before release, and retention.
+- [Book a demo](https://timeglass.ai/get-a-demo): See Timeglass with the team.
+
+## Current industry guides
+- [Legal teams](https://timeglass.ai/use-cases/legal): Time tracking for legal work.
+- [Accounting teams](https://timeglass.ai/use-cases/accounting): Time tracking for accounting work.
+- [Architecture and engineering](https://timeglass.ai/use-cases/architecture-engineering): Time tracking for project-based professional services.
+
+## Help and developer documentation
+- [Help Center](https://timeglass.ai/help): Setup and product workflows for end users.
+- [API documentation](https://timeglass.ai/docs): REST API reference for developers.
+- [Connect an AI assistant](https://timeglass.ai/help/ai-assistant/connect-ai-assistant): Connect Claude, ChatGPT, or another compatible MCP client.
+
+## Company and policies
+- [About Timeglass](https://timeglass.ai/about): Company and team.
+- [Blog](https://timeglass.ai/blog): Articles about timesheets, work, and AI.
+- [Privacy policy](https://timeglass.ai/privacy): Personal-data handling.
+- [Data processing agreement](https://timeglass.ai/dpa): Data-processing terms.
+- [Sub-processors](https://timeglass.ai/sub-processors): Service providers used to operate Timeglass.
